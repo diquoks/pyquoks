@@ -1,7 +1,7 @@
 from __future__ import annotations
 import configparser, datetime, logging, winreg, json, sys, io, os
 import requests, PIL.Image, PIL.ImageDraw
-import utils
+from . import utils
 
 
 # Providers
