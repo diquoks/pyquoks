@@ -120,6 +120,9 @@ class IAssetsProvider:
 
 
 class IStringsProvider:
+    class IStrings:
+        pass
+
     _STRINGS_OBJECTS: dict[str, type]
 
     def __init__(self):
