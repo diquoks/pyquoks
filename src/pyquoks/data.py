@@ -12,7 +12,7 @@ class IDataProvider:
     def __init__(self) -> None:
         for k, v in self._DATA_VALUES.items():
             try:
-                with open(self._PATH.format(k), "rb") as file:
+                with open(self._PATH.format(k), "rb", encoding="utf-8") as file:
                     setattr(self, k, v(json_data=json.loads(file.read())))
             except:
                 setattr(self, k, None)
@@ -36,7 +36,7 @@ class IConfigProvider:
                         setattr(self, k, self._config.get(self._SECTION, k))
                     except:
                         self._config.set(self._SECTION, k, v.__name__)
-                        with open(utils.get_path("config.ini"), "w") as file:
+                        with open(utils.get_path("config.ini"), "w", encoding="utf-8") as file:
                             self._config.write(fp=file)
                 for k, v in self._CONFIG_VALUES.items():
                     try:
@@ -96,7 +96,7 @@ class IAssetsProvider:
 
     @staticmethod
     def file_image(path: str) -> PIL.Image.Image:
-        with open(path, "rb") as file:
+        with open(path, "rb", encoding="utf-8") as file:
             return PIL.Image.open(io.BytesIO(file.read()))
 
     @staticmethod
