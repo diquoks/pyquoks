@@ -12,7 +12,7 @@ class IDataProvider:
     def __init__(self) -> None:
         for k, v in self._DATA_VALUES.items():
             try:
-                with open(self._PATH.format(k), "rb", encoding="utf-8") as file:
+                with open(self._PATH.format(k), "rb") as file:
                     setattr(self, k, v(json_data=json.loads(file.read())))
             except:
                 setattr(self, k, None)
@@ -96,7 +96,7 @@ class IAssetsProvider:
 
     @staticmethod
     def file_image(path: str) -> PIL.Image.Image:
-        with open(path, "rb", encoding="utf-8") as file:
+        with open(path, "rb") as file:
             return PIL.Image.open(io.BytesIO(file.read()))
 
     @staticmethod
