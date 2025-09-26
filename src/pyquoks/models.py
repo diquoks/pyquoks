@@ -7,7 +7,7 @@ class IContainer:
     _OBJECTS: dict[str, type] = None
     data: dict
 
-    def __init__(self, json_data: dict):
+    def __init__(self, json_data: dict) -> None:
         setattr(self, "data", json_data)
         if isinstance(self._ATTRIBUTES, set):
             for i in self._ATTRIBUTES:
@@ -31,7 +31,7 @@ class IModel:
     _OBJECTS: dict[str, type] = None
     data: dict | list[dict]
 
-    def __init__(self, json_data: dict | list[dict]):
+    def __init__(self, json_data: dict | list[dict]) -> None:
         setattr(self, "data", json_data)
         if isinstance(self._ATTRIBUTES, set):
             for i in self._ATTRIBUTES:
@@ -55,9 +55,9 @@ class IModel:
 class IValues:
     _ATTRIBUTES: set[str] = None
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs) -> None:
         for i in self._ATTRIBUTES:
             setattr(self, i, kwargs.get(i, None))
 
-    def update(self, **kwargs):
+    def update(self, **kwargs) -> None:
         self.__init__(**kwargs)

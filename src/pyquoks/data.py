@@ -76,21 +76,21 @@ class IAssetsProvider:
         _PATH: str = None
         _NAMES: set[str]
 
-        def __init__(self, parent: IAssetsProvider):
+        def __init__(self, parent: IAssetsProvider) -> None:
             for i in self._NAMES:
                 setattr(self, i, parent.file_image(parent._PATH.format(self._PATH.format(i))))
 
     class INetwork:
         _URLS: dict[str, str]
 
-        def __init__(self, parent: IAssetsProvider):
+        def __init__(self, parent: IAssetsProvider) -> None:
             for k, v in self._URLS:
                 setattr(self, k, parent.network_image(v))
 
     _PATH: str
     _ASSETS_OBJECTS: dict[str, type]
 
-    def __init__(self):
+    def __init__(self) -> None:
         for k, v in self._ASSETS_OBJECTS.items():
             setattr(self, k, v(self))
 
@@ -125,7 +125,7 @@ class IStringsProvider:
 
     _STRINGS_OBJECTS: dict[str, type]
 
-    def __init__(self):
+    def __init__(self) -> None:
         for k, v in self._STRINGS_OBJECTS.items():
             setattr(self, k, v())
 
