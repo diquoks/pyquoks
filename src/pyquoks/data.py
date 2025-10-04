@@ -179,15 +179,28 @@ class IRegistryManager:
 
 # Services
 class LoggerService(logging.Logger):
-    def __init__(self, name: str, file_handling: bool = True, filename: str = datetime.datetime.now().strftime("%d-%m-%y-%H-%M-%S"), level: int = logging.NOTSET, folder_name: str = "logs") -> None:
+    def __init__(
+            self,
+            name: str, file_handling: bool = True,
+            filename: str = datetime.datetime.now().strftime("%d-%m-%y-%H-%M-%S"),
+            level: int = logging.NOTSET,
+            folder_name: str = "logs",
+    ) -> None:
         super().__init__(name, level)
         stream_handler = logging.StreamHandler(sys.stdout)
-        stream_handler.setFormatter(logging.Formatter(fmt="$levelname $asctime $name - $message", datefmt="%d-%m-%y %H:%M:%S", style="$"))
+        stream_handler.setFormatter(
+            logging.Formatter(fmt="$levelname $asctime $name - $message", datefmt="%d-%m-%y %H:%M:%S", style="$")
+        )
         self.addHandler(stream_handler)
         if file_handling:
             os.makedirs(utils.get_path(folder_name, only_abspath=True), exist_ok=True)
-            file_handler = logging.FileHandler(utils.get_path(f"{folder_name}/{filename}-{name}.log", only_abspath=True), encoding="utf-8")
-            file_handler.setFormatter(logging.Formatter(fmt="$levelname $asctime - $message", datefmt="%d-%m-%y %H:%M:%S", style="$"))
+            file_handler = logging.FileHandler(
+                utils.get_path(f"{folder_name}/{filename}-{name}.log", only_abspath=True),
+                encoding="utf-8",
+            )
+            file_handler.setFormatter(
+                logging.Formatter(fmt="$levelname $asctime - $message", datefmt="%d-%m-%y %H:%M:%S", style="$"),
+            )
             self.addHandler(file_handler)
 
     def log_exception(self, e: Exception) -> None:
