@@ -1,9 +1,9 @@
 from __future__ import annotations
-import waitress, flask
+import waitress, typing, flask
 
 
 class ILocalhostFlask(flask.Flask):
-    _RULES: dict[str, function]
+    _RULES: dict[str, typing.Callable]
 
     def __init__(self, import_name: str) -> None:
         super().__init__(import_name)
