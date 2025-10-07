@@ -1,5 +1,5 @@
 from __future__ import annotations
-import configparser, datetime, logging, winreg, json, sys, io, os
+import configparser, datetime, logging, json, sys, io, os
 import requests, PIL.Image, PIL.ImageDraw
 from . import utils
 
@@ -131,50 +131,54 @@ class IStringsProvider:
 
 
 # Managers
-class IRegistryManager:
-    class IRegistry:
-        _NAME: str = None
-        _REGISTRY_VALUES: dict[str, int]
+if sys.platform == "win32":
+    import winreg
 
-        def __init__(self, parent: IRegistryManager = None) -> None:
-            if isinstance(parent, IRegistryManager):
-                self._REGISTRY_VALUES = parent._REGISTRY_VALUES.get(self._NAME)
-                self._path = winreg.CreateKey(parent._path, self._NAME)
-                for i in self._REGISTRY_VALUES.keys():
-                    try:
-                        setattr(self, i, winreg.QueryValueEx(self._path, i)[int()])
-                    except:
-                        setattr(self, i, None)
 
-        @property
-        def values(self) -> dict | None:
-            try:
-                return {i: getattr(self, i) for i in self._REGISTRY_VALUES}
-            except:
-                return None
+    class IRegistryManager:
+        class IRegistry:
+            _NAME: str = None
+            _REGISTRY_VALUES: dict[str, int]
 
-        def refresh(self) -> IRegistryManager.IRegistry:
+            def __init__(self, parent: IRegistryManager = None) -> None:
+                if isinstance(parent, IRegistryManager):
+                    self._REGISTRY_VALUES = parent._REGISTRY_VALUES.get(self._NAME)
+                    self._path = winreg.CreateKey(parent._path, self._NAME)
+                    for i in self._REGISTRY_VALUES.keys():
+                        try:
+                            setattr(self, i, winreg.QueryValueEx(self._path, i)[int()])
+                        except:
+                            setattr(self, i, None)
+
+            @property
+            def values(self) -> dict | None:
+                try:
+                    return {i: getattr(self, i) for i in self._REGISTRY_VALUES}
+                except:
+                    return None
+
+            def refresh(self) -> IRegistryManager.IRegistry:
+                self.__init__()
+                return self
+
+            def update(self, **kwargs) -> None:
+                for k, v in kwargs.items():
+                    winreg.SetValueEx(self._path, k, None, self._REGISTRY_VALUES.get(k), v)
+                    setattr(self, k, v)
+
+        _KEY: str
+        _REGISTRY_VALUES: dict[str, dict[str, int]]
+        _REGISTRY_OBJECTS: dict[str, type]
+        _path: winreg.HKEYType
+
+        def __init__(self) -> None:
+            self._path = winreg.CreateKey(winreg.HKEY_CURRENT_USER, self._KEY)
+            for k, v in self._REGISTRY_OBJECTS.items():
+                setattr(self, k, v(self))
+
+        def refresh(self) -> IRegistryManager:
             self.__init__()
             return self
-
-        def update(self, **kwargs) -> None:
-            for k, v in kwargs.items():
-                winreg.SetValueEx(self._path, k, None, self._REGISTRY_VALUES.get(k), v)
-                setattr(self, k, v)
-
-    _KEY: str
-    _REGISTRY_VALUES: dict[str, dict[str, int]]
-    _REGISTRY_OBJECTS: dict[str, type]
-    _path: winreg.HKEYType
-
-    def __init__(self) -> None:
-        self._path = winreg.CreateKey(winreg.HKEY_CURRENT_USER, self._KEY)
-        for k, v in self._REGISTRY_OBJECTS.items():
-            setattr(self, k, v(self))
-
-    def refresh(self) -> IRegistryManager:
-        self.__init__()
-        return self
 
 
 # Services
