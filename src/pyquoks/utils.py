@@ -3,6 +3,10 @@ import sys, os
 
 
 def get_path(relative_path: str, only_abspath: bool = False) -> str:
+    """
+    :return: Absolute path for provided relative path
+    """
+
     try:
         # noinspection PyUnresolvedReferences
         base_path = sys._MEIPASS
