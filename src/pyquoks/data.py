@@ -8,15 +8,17 @@ from . import utils
 
 class IDataProvider:
     """
-    Class for reading and storing data from ``.json`` files
+    Class for providing data from JSON-like files
     """
 
-    _PATH: str = None
+    _PATH: str = utils.get_path("data/")
     """
-    Path to the directory with ``.json`` files
+    Path to the directory with JSON-like files
+    """
 
-    Example:
-        _PATH = "data/{0}.json"
+    _FILENAME: str = "{0}.json"
+    """
+    Filename of JSON-like files
     """
 
     _DATA_VALUES: dict[str, type]
@@ -30,7 +32,7 @@ class IDataProvider:
     def __init__(self) -> None:
         for filename, container in self._DATA_VALUES.items():
             try:
-                with open(self._PATH.format(filename), "rb") as file:
+                with open(self._PATH + self._FILENAME.format(filename), "rb") as file:
                     setattr(self, filename, container(json.loads(file.read())))
             except:
                 setattr(self, filename, None)
@@ -38,17 +40,17 @@ class IDataProvider:
 
 class IConfigProvider:
     """
-    Class for reading and storing data from ``.ini`` files
+    Class for providing data from configuration file
     """
 
     class IConfig:
         """
-        Class that represents a section in ``.ini`` file
+        Class that represents a section in configuration file
         """
 
         _SECTION: str = None
         """
-        Name of the section in ``.ini`` file
+        Name of the section in configuration file
 
         Example:
             _SECTION = "Settings"
@@ -63,48 +65,38 @@ class IConfigProvider:
             if isinstance(parent, IConfigProvider):
                 self._CONFIG_VALUES = parent._CONFIG_VALUES.get(self._SECTION)
 
-                self._incorrect_content_exception = configparser.ParsingError("config.ini is filled incorrectly!")
+                self._incorrect_content_exception = configparser.ParsingError(
+                    "configuration file is filled incorrectly!"
+                )
                 self._config = configparser.ConfigParser()
-                self._config.read(utils.get_path("config.ini"))
+                self._config.read(parent._PATH)
 
                 if not self._config.has_section(self._SECTION):
                     self._config.add_section(self._SECTION)
 
-                for settings, data_type in self._CONFIG_VALUES.items():
+                for setting, data_type in self._CONFIG_VALUES.items():
                     try:
-                        setattr(self, settings, self._config.get(self._SECTION, settings))
+                        setattr(self, setting, self._config.get(self._SECTION, setting))
                     except:
-                        self._config.set(self._SECTION, settings, data_type.__name__)
-                        with open(utils.get_path("config.ini"), "w", encoding="utf-8") as file:
+                        self._config.set(self._SECTION, setting, data_type.__name__)
+                        with open(parent._PATH, "w", encoding="utf-8") as file:
                             self._config.write(file)
 
-                for settings, data_type in self._CONFIG_VALUES.items():
+                for setting, data_type in self._CONFIG_VALUES.items():
                     try:
-                        if data_type == int:
-                            setattr(self, settings, int(getattr(self, settings)))
-                        elif data_type == bool:
-                            if getattr(self, settings) not in (str(True), str(False)):
-                                setattr(self, settings, None)
-                                raise self._incorrect_content_exception
-                            else:
-                                setattr(self, settings, getattr(self, settings) == str(True))
-                        elif data_type == dict | list:
-                            setattr(self, settings, json.loads(getattr(self, settings)))
-
-                        # TODO: test match-case
-                        # match str(data_type):
-                        #     case "int":
-                        #         setattr(self, settings, int(getattr(self, settings)))
-                        #     case "bool":
-                        #         if getattr(self, settings) not in (str(True), str(False)):
-                        #             setattr(self, settings, None)
-                        #             raise self._incorrect_content_exception
-                        #         else:
-                        #             setattr(self, settings, getattr(self, settings) == str(True))
-                        #     case "dict" | "list":
-                        #         setattr(self, settings, json.loads(getattr(self, settings)))
+                        match data_type.__name__:
+                            case "int":
+                                setattr(self, setting, int(getattr(self, setting)))
+                            case "bool":
+                                if getattr(self, setting) not in (str(True), str(False)):
+                                    setattr(self, setting, None)
+                                    raise self._incorrect_content_exception
+                                else:
+                                    setattr(self, setting, getattr(self, setting) == str(True))
+                            case "dict" | "list":
+                                setattr(self, setting, json.loads(getattr(self, setting)))
                     except:
-                        setattr(self, settings, None)
+                        setattr(self, setting, None)
                         raise self._incorrect_content_exception
 
                 if not self.values:
@@ -120,6 +112,11 @@ class IConfigProvider:
                 return {setting: getattr(self, setting) for setting in self._CONFIG_VALUES.keys()}
             except:
                 return None
+
+    _PATH: str = utils.get_path("config.ini")
+    """
+    Path to the configuration file
+    """
 
     _CONFIG_VALUES: dict[str, dict[str, type]]
     """
@@ -143,6 +140,10 @@ class IConfigProvider:
 
 
 class IAssetsProvider:
+    """
+    Class for providing various assets data
+    """
+
     class IDirectory:
         """
         Class that represents a directory with various assets
@@ -153,7 +154,15 @@ class IAssetsProvider:
         Path to the directory with assets files
 
         Example:
-            _PATH = "images/{0}.png"
+            _PATH = "images/"
+        """
+
+        _FILENAME: str = None
+        """
+        Filename of assets files
+
+        Example:
+            _FILENAME = "{0}.png"
         """
 
         _NAMES: set[str]
@@ -165,9 +174,11 @@ class IAssetsProvider:
         """
 
         def __init__(self, parent: IAssetsProvider) -> None:
+            self._PATH = parent._PATH + self._PATH
+
             if isinstance(parent, IAssetsProvider):
                 for filename in self._NAMES:
-                    setattr(self, filename, parent.file_image(parent._PATH.format(self._PATH.format(filename))))
+                    setattr(self, filename, parent.file_image(self._PATH + self._FILENAME.format(filename)))
 
     class INetwork:
         """
@@ -187,12 +198,9 @@ class IAssetsProvider:
                 for name, url in self._URLS.items():
                     setattr(self, name, parent.network_image(url))
 
-    _PATH: str
+    _PATH: str = utils.get_path("assets/")
     """
     Path to the directory with assets folders
-
-    Example:
-        _PATH = "assets/{0}"
     """
 
     _ASSETS_OBJECTS: dict[str, type]
@@ -248,6 +256,10 @@ class IAssetsProvider:
 
 
 class IStringsProvider:
+    """
+    Class for providing various strings data
+    """
+
     class IStrings:
         """
         Class that represents a container for strings
@@ -258,11 +270,14 @@ class IStringsProvider:
     _STRINGS_OBJECTS: dict[str, type]
     """
     Dictionary with names of attributes and child objects
+
+    Example:
+        _STRINGS_OBJECTS = {"localizable": LocalizableStrings}
     """
 
     def __init__(self) -> None:
         for name, data_class in self._STRINGS_OBJECTS.items():
-            setattr(self, name, data_class(self))
+            setattr(self, name, data_class())
 
 
 # endregion
@@ -295,17 +310,17 @@ class IDatabaseManager:
             _SQL = f\"\"\"CREATE TABLE IF NOT EXISTS {_NAME} (user_id INTEGER PRIMARY KEY NOT NULL)\"\"\"
         """
 
-        _PATH: str = "{0}.db"
+        _FILENAME: str = "{0}.db"
         """
         File extension of database
         """
 
         def __init__(self, parent: IDatabaseManager) -> None:
             if isinstance(parent, IDatabaseManager):
-                self._PATH = parent._PATH + self._PATH
+                self._FILENAME = self._FILENAME.format(self._NAME)
 
                 super().__init__(
-                    database=self._PATH.format(self._NAME),
+                    database=parent._PATH + self._FILENAME,
                     check_same_thread=False,
                 )
 
@@ -317,12 +332,9 @@ class IDatabaseManager:
         def _db_cursor(self) -> sqlite3.Cursor:
             return self._cursor
 
-    _PATH: str
+    _PATH: str = utils.get_path("db/")
     """
     Path to the directory with databases
-
-    Example:
-        _PATH = "db/"
     """
 
     _DATABASE_OBJECTS: dict[str, type]
@@ -470,7 +482,7 @@ class LoggerService(logging.Logger):
             name: str, file_handling: bool = True,
             filename: str = datetime.datetime.now().strftime("%d-%m-%y-%H-%M-%S"),
             level: int = logging.NOTSET,
-            folder_name: str = "logs",
+            path: str = utils.get_path("logs/", only_abspath=True),
     ) -> None:
         super().__init__(name, level)
 
@@ -485,10 +497,10 @@ class LoggerService(logging.Logger):
         self.addHandler(stream_handler)
 
         if file_handling:
-            os.makedirs(utils.get_path(folder_name, only_abspath=True), exist_ok=True)
+            os.makedirs(path, exist_ok=True)
 
             file_handler = logging.FileHandler(
-                utils.get_path(f"{folder_name}/{filename}-{name}.log", only_abspath=True),
+                path + f"{filename}-{name}.log",
                 encoding="utf-8",
             )
             file_handler.setFormatter(
