@@ -1,5 +1,5 @@
 from __future__ import annotations
-import configparser, datetime, logging, json, sys, io, os
+import configparser, datetime, logging, sqlite3, json, sys, io, os
 import requests, PIL.Image, PIL.ImageDraw
 from . import utils
 
@@ -268,6 +268,84 @@ class IStringsProvider:
 # endregion
 
 # region Managers
+
+class IDatabaseManager:
+    """
+    Class for managing database connections
+    """
+
+    class IDatabase(sqlite3.Connection):
+        """
+        Class that represents a database connection
+        """
+
+        _NAME: str = None
+        """
+        Name of the database
+
+        Example:
+            _NAME = "users"
+        """
+
+        _SQL: str = None
+        """
+        SQL expression for creating a database
+
+        Example:
+            _SQL = f\"\"\"CREATE TABLE IF NOT EXISTS {_NAME} (user_id INTEGER PRIMARY KEY NOT NULL)\"\"\"
+        """
+
+        _PATH: str = "{0}.db"
+        """
+        File extension of database
+        """
+
+        def __init__(self, parent: IDatabaseManager) -> None:
+            if isinstance(parent, IDatabaseManager):
+                self._PATH = parent._PATH + self._PATH
+
+                super().__init__(
+                    database=self._PATH.format(self._NAME),
+                    check_same_thread=False,
+                )
+
+                self._cursor = self.cursor()
+                self._db_cursor.execute(self._SQL)
+                self.commit()
+
+        @property
+        def _db_cursor(self) -> sqlite3.Cursor:
+            return self._cursor
+
+    _PATH: str
+    """
+    Path to the directory with databases
+
+    Example:
+        _PATH = "db/"
+    """
+
+    _DATABASE_OBJECTS: dict[str, type]
+    """
+    Dictionary with names of attributes and child objects
+
+    Example:
+        _DATABASE_OBJECTS = {"users": UsersDatabase}
+    """
+
+    def __init__(self) -> None:
+        os.makedirs(self._PATH, exist_ok=True)
+
+        for name, data_class in self._DATABASE_OBJECTS.items():
+            setattr(self, name, data_class(self))
+
+    def close_all(self) -> None:
+        """
+        Closes all database connections
+        """
+        for database in self._DATABASE_OBJECTS.keys():
+            getattr(self, database).close()
+
 
 if sys.platform == "win32":
     import winreg
