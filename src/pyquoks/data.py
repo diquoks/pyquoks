@@ -477,12 +477,18 @@ class LoggerService(logging.Logger):
     Class that provides methods for parallel logging
     """
 
+    _LOGS_PATH: str | None
+    """
+    Path to the logs file
+    """
+
     def __init__(
             self,
-            name: str, file_handling: bool = True,
-            filename: str = datetime.datetime.now().strftime("%d-%m-%y-%H-%M-%S"),
-            level: int = logging.NOTSET,
+            name: str,
             path: str = utils.get_path("logs/", only_abspath=True),
+            filename: str = datetime.datetime.now().strftime("%d-%m-%y-%H-%M-%S"),
+            file_handling: bool = True,
+            level: int = logging.NOTSET,
     ) -> None:
         super().__init__(name, level)
 
@@ -498,9 +504,10 @@ class LoggerService(logging.Logger):
 
         if file_handling:
             os.makedirs(path, exist_ok=True)
+            self._LOG_PATH = path + f"{filename}-{name}.log"
 
             file_handler = logging.FileHandler(
-                path + f"{filename}-{name}.log",
+                self._LOG_PATH,
                 encoding="utf-8",
             )
             file_handler.setFormatter(
@@ -511,6 +518,12 @@ class LoggerService(logging.Logger):
                 ),
             )
             self.addHandler(file_handler)
+
+    def get_logs_file(self) -> io.BufferedReader:
+        """
+        :return: Opened file-like object of current logs
+        """
+        return open(self._LOG_PATH, "rb")
 
     def log_exception(self, e: Exception) -> None:
         """
