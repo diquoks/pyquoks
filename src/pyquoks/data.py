@@ -87,6 +87,8 @@ class IConfigProvider:
                         match data_type.__name__:
                             case "int":
                                 setattr(self, setting, int(getattr(self, setting)))
+                            case "float":
+                                setattr(self, setting, float(getattr(self, setting)))
                             case "bool":
                                 if getattr(self, setting) not in (str(True), str(False)):
                                     setattr(self, setting, None)
@@ -323,14 +325,11 @@ class IDatabaseManager:
                     database=parent._PATH + self._FILENAME,
                     check_same_thread=False,
                 )
+                self.row_factory = sqlite3.Row
 
-                self._cursor = self.cursor()
-                self._db_cursor.execute(self._SQL)
+                cursor = self.cursor()
+                cursor.execute(self._SQL)
                 self.commit()
-
-        @property
-        def _db_cursor(self) -> sqlite3.Cursor:
-            return self._cursor
 
     _PATH: str = utils.get_path("db/")
     """
