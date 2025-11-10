@@ -84,18 +84,18 @@ class IConfigProvider:
 
                 for setting, data_type in self._CONFIG_VALUES.items():
                     try:
-                        match data_type.__name__:
-                            case "int":
-                                setattr(self, setting, int(getattr(self, setting)))
-                            case "float":
-                                setattr(self, setting, float(getattr(self, setting)))
-                            case "bool":
+                        match data_type:
+                            case bool():
                                 if getattr(self, setting) not in (str(True), str(False)):
                                     setattr(self, setting, None)
                                     raise self._incorrect_content_exception
                                 else:
                                     setattr(self, setting, getattr(self, setting) == str(True))
-                            case "dict" | "list":
+                            case int():
+                                setattr(self, setting, int(getattr(self, setting)))
+                            case float():
+                                setattr(self, setting, float(getattr(self, setting)))
+                            case dict() | list():
                                 setattr(self, setting, json.loads(getattr(self, setting)))
                     except:
                         setattr(self, setting, None)
