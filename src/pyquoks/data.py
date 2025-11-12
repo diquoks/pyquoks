@@ -1,6 +1,6 @@
 from __future__ import annotations
 import datetime, logging, typing, sys, os
-import utils
+import pyquoks.utils
 
 
 # region Services
@@ -17,8 +17,8 @@ class LoggerService(logging.Logger):
             name: str,
             level: int = logging.NOTSET,
             file_handling: bool = True,
-            path: str = utils.get_path("logs/"),
-            filename: str = utils.get_timestamp(datetime.datetime.now()),
+            path: str = pyquoks.utils.get_path("logs/"),
+            filename: str = str(int(datetime.datetime.now().timestamp())),
     ) -> None:
         super().__init__(name, level)
 

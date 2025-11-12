@@ -1,0 +1,44 @@
+from __future__ import annotations
+import typing
+import waitress, flask
+import pyquoks.utils
+
+
+class LocalhostFlask(flask.Flask, pyquoks.utils._HasRequiredAttributes):
+    """
+    Class for creating a simple localhost server
+
+    **Required Attributes**::
+
+        _RULES = {"/": self.base_redirect}
+    """
+
+    _REQUIRED_ATTRIBUTES = {
+        "_RULES",
+    }
+
+    _RULES: dict[str, typing.Callable]
+
+    def __init__(self, import_name: str) -> None:
+        self._check_attributes()
+
+        super().__init__(
+            import_name=import_name,
+        )
+
+        for rule, view_func in self._RULES.items():
+            self.add_url_rule(
+                rule=rule,
+                view_func=view_func,
+            )
+
+    def serve(self, port: int) -> None:
+        """
+        Starts this Flask application
+        """
+
+        waitress.serve(
+            app=self,
+            host="127.0.0.1",
+            port=port,
+        )

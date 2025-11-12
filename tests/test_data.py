@@ -1,5 +1,5 @@
 from __future__ import annotations
-import pyquoks.test
+import pyquoks
 
 
 class TestData(pyquoks.test.TestBase):

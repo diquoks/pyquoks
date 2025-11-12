@@ -1,5 +1,19 @@
 from __future__ import annotations
-import datetime, sys, os
+import sys, os
+
+
+class _HasRequiredAttributes:
+    """
+    Assistive class for checking for required attributes
+    """
+
+    _REQUIRED_ATTRIBUTES: set[str]
+
+    def _check_attributes(self) -> None:
+        if hasattr(self, "_REQUIRED_ATTRIBUTES"):
+            for attribute in self._REQUIRED_ATTRIBUTES:
+                if not hasattr(self, attribute):
+                    raise AttributeError(f"The required class attribute is not set! ({attribute})")
 
 
 def get_path(relative_path: str, use_meipass: bool = False) -> str:
@@ -15,7 +29,3 @@ def get_path(relative_path: str, use_meipass: bool = False) -> str:
         base_path = os.path.abspath(".")
 
     return os.path.join(base_path, relative_path)
-
-
-def get_timestamp(date: datetime.datetime) -> int:
-    return int(date.timestamp())
