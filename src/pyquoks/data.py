@@ -63,7 +63,7 @@ class LoggerService(logging.Logger):
         else:
             return None
 
-    def log_error(self, exception: Exception) -> None:
+    def log_error(self, exception: Exception, raise_again: bool = False) -> None:
         """
         Logs an exception with detailed traceback
         """
@@ -72,5 +72,8 @@ class LoggerService(logging.Logger):
             msg=exception,
             exc_info=True,
         )
+
+        if raise_again:
+            raise exception
 
 # endregion

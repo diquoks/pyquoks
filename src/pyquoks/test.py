@@ -54,8 +54,11 @@ class TestBase(unittest.TestCase, pyquoks.utils._HasRequiredAttributes):
                 expr1=test_data,
                 expr2=test_expected,
             )
-        except Exception as e:
-            self._logger.log_error(e)
+        except Exception as exception:
+            self._logger.log_error(
+                exception=exception,
+                raise_again=True,
+            )
 
     def assert_type(
             self,
@@ -78,5 +81,8 @@ class TestBase(unittest.TestCase, pyquoks.utils._HasRequiredAttributes):
                 obj=test_data,
                 cls=test_type,
             )
-        except Exception as e:
-            self._logger.log_error(e)
+        except Exception as exception:
+            self._logger.log_error(
+                exception=exception,
+                raise_again=True,
+            )
