@@ -5,6 +5,13 @@ import sys, os
 class _HasRequiredAttributes:
     """
     Assistive class for checking for required attributes
+
+    **Required Attributes**::
+
+        _REQUIRED_ATTRIBUTES = {"_ATTRIBUTES", "_OBJECTS"}
+
+    Attributes:
+        _REQUIRED_ATTRIBUTES: Set of required attributes in the class
     """
 
     _REQUIRED_ATTRIBUTES: set[str]

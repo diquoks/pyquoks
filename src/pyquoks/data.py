@@ -8,6 +8,9 @@ import pyquoks.utils
 class LoggerService(logging.Logger):
     """
     Class that provides methods for parallel logging
+
+    Attributes:
+        _LOG_PATH: Path to the logs file
     """
 
     _LOG_PATH: str | None

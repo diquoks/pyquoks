@@ -4,6 +4,10 @@ import pyquoks.data
 
 
 class TestBase(unittest.TestCase):
+    """
+    Class for performing unit testing
+    """
+
     @classmethod
     def setUpClass(cls) -> None:
         cls._logger = pyquoks.data.LoggerService(

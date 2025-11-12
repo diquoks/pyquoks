@@ -11,6 +11,9 @@ class LocalhostFlask(flask.Flask, pyquoks.utils._HasRequiredAttributes):
     **Required Attributes**::
 
         _RULES = {"/": self.base_redirect}
+
+    Attributes:
+        _RULES: Dictionary with rules and functions
     """
 
     _REQUIRED_ATTRIBUTES = {
