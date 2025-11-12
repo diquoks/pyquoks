@@ -3,4 +3,4 @@ import pyquoks
 
 
 class TestData(pyquoks.test.TestBase):
-    pass
+    _MODULE_NAME = __name__
