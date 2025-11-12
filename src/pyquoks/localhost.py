@@ -38,6 +38,8 @@ class LocalhostFlask(flask.Flask, pyquoks.utils._HasRequiredAttributes):
     def serve(self, port: int) -> None:
         """
         Starts this Flask application
+
+        :param port: Port number
         """
 
         waitress.serve(

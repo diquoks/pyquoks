@@ -66,6 +66,9 @@ class LoggerService(logging.Logger):
     def log_error(self, exception: Exception, raise_again: bool = False) -> None:
         """
         Logs an exception with detailed traceback
+
+        :param exception: Exception to be logged
+        :param raise_again: Whether or not exception should be raised again
         """
 
         self.error(
