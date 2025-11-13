@@ -29,7 +29,7 @@ class TestBase(unittest.TestCase, pyquoks.utils._HasRequiredAttributes):
     @classmethod
     def setUpClass(cls) -> None:
         cls._logger = pyquoks.data.LoggerService(
-            name=__name__,
+            filename=__name__,
         )
 
     def _get_func_name(self, func_name: str) -> str:
@@ -73,8 +73,6 @@ class TestBase(unittest.TestCase, pyquoks.utils._HasRequiredAttributes):
                 f"Expected: {test_type.__name__}\n"
             ),
         )
-
-        # TODO: log attributes of pyquoks' classes
 
         try:
             self.assertIsInstance(

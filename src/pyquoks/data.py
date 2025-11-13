@@ -17,13 +17,12 @@ class LoggerService(logging.Logger):
 
     def __init__(
             self,
-            name: str,
+            filename: str,
             level: int = logging.NOTSET,
             file_handling: bool = True,
             path: str = pyquoks.utils.get_path("logs/"),
-            filename: str = str(int(datetime.datetime.now().timestamp())),
     ) -> None:
-        super().__init__(name, level)
+        super().__init__(filename, level)
 
         self.stream_handler = logging.StreamHandler(sys.stdout)
         self.stream_handler.setFormatter(
@@ -37,7 +36,7 @@ class LoggerService(logging.Logger):
 
         if file_handling:
             os.makedirs(path, exist_ok=True)
-            self._LOG_PATH = path + f"{filename}.{name}.log"
+            self._LOG_PATH = path + f"{int(datetime.datetime.now().timestamp())}.{filename}.log"
 
             self.file_handler = logging.FileHandler(
                 filename=self._LOG_PATH,

@@ -71,6 +71,12 @@ class TestModels(pyquoks.test.TestBase):
             test_expected="container_test_data",
         )
 
+        self.assert_type(
+            func_name=self.test_container.__name__,
+            test_data=models_container.test_model,
+            test_type=TestModel,
+        )
+
         self.assert_is(
             func_name=self.test_container.__name__,
             test_data=models_container.test_model.test,
@@ -86,6 +92,12 @@ class TestModels(pyquoks.test.TestBase):
                     "test": "second_test_data",
                 }
             ]
+        )
+
+        self.assert_type(
+            func_name=self.test_container.__name__,
+            test_data=list_container.test_models,
+            test_type=list,
         )
 
         self.assert_is(
