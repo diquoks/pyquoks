@@ -3,7 +3,7 @@ import unittest, types
 import pyquoks.data, pyquoks.utils
 
 
-class TestBase(unittest.TestCase, pyquoks.utils._HasRequiredAttributes):
+class TestCase(unittest.TestCase, pyquoks.utils._HasRequiredAttributes):
     """
     Class for performing unit testing
 

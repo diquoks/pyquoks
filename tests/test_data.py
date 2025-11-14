@@ -4,18 +4,18 @@ import PIL.Image
 import pyquoks, _test_utils
 
 
-class TestData(pyquoks.test.TestBase):
+class TestData(pyquoks.test.TestCase):
     _MODULE_NAME = __name__
 
-    _data_provider = _test_utils.DataProvider()
+    @classmethod
+    def setUpClass(cls) -> None:
+        super().setUpClass()
 
-    _assets_provider = _test_utils.AssetsProvider()
-
-    _strings_provider = _test_utils.StringsProvider()
-
-    _config_manager = _test_utils.ConfigManager()
-
-    _database_manager = _test_utils.DatabaseManager()
+        cls._data_provider = _test_utils.DataProvider()
+        cls._assets_provider = _test_utils.AssetsProvider()
+        cls._strings_provider = _test_utils.StringsProvider()
+        cls._config_manager = _test_utils.ConfigManager()
+        cls._database_manager = _test_utils.DatabaseManager()
 
     @classmethod
     def tearDownClass(cls) -> None:
