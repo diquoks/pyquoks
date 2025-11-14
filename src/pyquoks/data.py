@@ -307,16 +307,16 @@ class ConfigManager(pyquoks.utils._HasRequiredAttributes):
                     match object_type.__name__:
                         case str.__name__:
                             pass
+                        case int.__name__:
+                            setattr(self, attribute, int(getattr(self, attribute)))
+                        case float.__name__:
+                            setattr(self, attribute, float(getattr(self, attribute)))
                         case bool.__name__:
                             if getattr(self, attribute) not in [str(True), str(False)]:
                                 setattr(self, attribute, None)
                                 raise self._incorrect_content_exception
                             else:
                                 setattr(self, attribute, getattr(self, attribute) == str(True))
-                        case int.__name__:
-                            setattr(self, attribute, int(getattr(self, attribute)))
-                        case float.__name__:
-                            setattr(self, attribute, float(getattr(self, attribute)))
                         case dict.__name__ | list.__name__:
                             setattr(self, attribute, json.loads(getattr(self, attribute)))
                         case _:
