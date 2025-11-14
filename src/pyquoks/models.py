@@ -1,138 +1,136 @@
 from __future__ import annotations
+import pyquoks.utils
 
 
-class IContainer:
-    """
-    Class for storing lists of models and another parameters
-    """
-
-    _ATTRIBUTES: set[str] | dict[str, set[str]] = None
-    """
-    Set of parameters that also can be stored one key deep
-
-    Example:
-        _ATTRIBUTES = {"beatmap_id", "score_id"}
-
-        _ATTRIBUTES = {"attributes": {"max_combo", "star_rating"}}
-    """
-
-    _DATA: dict[str, type] = None
-    """
-    Dictionary with name and type of models stored in list inside ``json_data``
-
-    Example:
-        _DATA = {"scores": ScoreModel}
-    """
-
-    _OBJECTS: dict[str, type] = None
-    """
-    Dictionary with keys of ``json_data`` and types of models stored in a list inside
-
-    Example:
-        _OBJECTS = {"beatmaps": BeatmapModel, "scores": ScoreModel}
-    """
-
-    _data: dict
-    """
-    Initial data that was passed into object
-    """
-
-    def __init__(self, json_data: dict) -> None:
-        self._data = json_data
-
-        if isinstance(self._ATTRIBUTES, set):
-            for name in self._ATTRIBUTES:
-                setattr(self, name, self._data.get(name, None))
-        elif isinstance(self._ATTRIBUTES, dict):
-            for key, attributes in self._ATTRIBUTES.items():
-                if isinstance(attributes, set):
-                    for name in attributes:
-                        try:
-                            setattr(self, name, self._data.get(key).get(name, None))
-                        except:
-                            setattr(self, name, None)
-
-        if isinstance(self._DATA, dict):
-            for name, data_class in self._DATA.items():
-                try:
-                    setattr(self, name, [data_class(data) for data in self._data])
-                except:
-                    setattr(self, name, None)
-        elif isinstance(self._OBJECTS, dict):
-            for name, data_class in self._OBJECTS.items():
-                try:
-                    setattr(self, name, [data_class(data) for data in self._data.get(name)])
-                except:
-                    setattr(self, name, None)
-
-
-class IModel:
+class Model:
     """
     Class for storing parameters and models
-    """
 
-    _ATTRIBUTES: set[str] | dict[str, set[str]] = None
-    """
-    Set of parameters that also can be stored one key deep
+    **Optional attributes**::
 
-    Example:
         _ATTRIBUTES = {"beatmap_id", "score_id"}
 
-        _ATTRIBUTES = {"attributes": {"max_combo", "star_rating"}}
+        _OBJECTS = {"scores": ScoreModel}
+
+    Attributes:
+        _ATTRIBUTES: Set of parameters that stored in this model
+        _OBJECTS: Dictionary with attributes and their models
+        _data: Initial data that was passed into object
     """
 
-    _OBJECTS: dict[str, type] = None
+    _ATTRIBUTES: set[str] | None
+
+    _OBJECTS: dict[str, type] | None
+
+    _data: dict
+
+    def __init__(self, data: dict) -> None:
+        self._data = data
+
+        if hasattr(self, "_ATTRIBUTES"):
+            if isinstance(self._ATTRIBUTES, set):
+                for attribute in self._ATTRIBUTES:
+                    setattr(self, attribute, self._data.get(attribute, None))
+        else:
+            self._ATTRIBUTES = None
+
+        if hasattr(self, "_OBJECTS"):
+            if isinstance(self._OBJECTS, dict):
+                for attribute, object_class in self._OBJECTS.items():
+                    try:
+                        setattr(self, attribute, object_class(self._data.get(attribute)))
+                    except:
+                        setattr(self, attribute, None)
+        else:
+            self._OBJECTS = None
+
+
+class Container:
     """
-    Dictionary with attributes and their models
-    
-    Example:
-        _OBJECTS = {"score": ScoreModel}
+    Class for storing lists of models and another parameters
+
+    **Optional attributes**::
+
+        _ATTRIBUTES = {"beatmap_id", "score_id"}
+
+        _OBJECTS = {"beatmap": BeatmapModel}
+
+        _DATA = {"scores": ScoreModel}
+
+    Attributes:
+        _ATTRIBUTES: Set of parameters that stored in this container
+        _OBJECTS: Dictionary with attributes and their models
+        _DATA: Dictionary with attribute and type of models stored in list
+        _data: Initial data that was passed into object
     """
+
+    _ATTRIBUTES: set[str] | None
+
+    _OBJECTS: dict[str, type] | None
+
+    _DATA: dict[str, type] | None
 
     _data: dict | list[dict]
-    """
-    Initial data that was passed into object
-    """
 
-    def __init__(self, json_data: dict | list[dict]) -> None:
-        self._data = json_data
+    def __init__(self, data: dict | list[dict]) -> None:
+        self._data = data
 
-        if isinstance(self._ATTRIBUTES, set):
-            for name in self._ATTRIBUTES:
-                setattr(self, name, self._data.get(name, None))
-        elif isinstance(self._ATTRIBUTES, dict):
-            for key, attributes in self._ATTRIBUTES.items():
-                if isinstance(attributes, set):
-                    for name in attributes:
+        if isinstance(self._data, dict):
+            if hasattr(self, "_ATTRIBUTES"):
+                if isinstance(self._ATTRIBUTES, set):
+                    for attribute in self._ATTRIBUTES:
+                        setattr(self, attribute, self._data.get(attribute, None))
+            else:
+                self._ATTRIBUTES = None
+
+            if hasattr(self, "_OBJECTS"):
+                if isinstance(self._OBJECTS, dict):
+                    for attribute, object_class in self._OBJECTS.items():
                         try:
-                            setattr(self, name, self._data.get(key).get(name, None))
+                            setattr(self, attribute, object_class(self._data.get(attribute)))
                         except:
-                            setattr(self, name, None)
+                            setattr(self, attribute, None)
+            else:
+                self._OBJECTS = None
+        elif isinstance(self._data, list):
+            if hasattr(self, "_DATA"):
+                if isinstance(self._DATA, dict):
+                    for attribute, object_class in self._DATA.items():
+                        try:
+                            setattr(self, attribute, [object_class(data) for data in self._data])
+                        except:
+                            setattr(self, attribute, None)
+            else:
+                self._DATA = None
 
-        if isinstance(self._OBJECTS, dict):
-            for name, data_class in self._OBJECTS.items():
-                try:
-                    setattr(self, name, data_class(self._data.get(name)))
-                except:
-                    setattr(self, name, None)
 
-
-class IValues:
+class Values(pyquoks.utils._HasRequiredAttributes):
     """
     Class for storing various parameters and values
-    """
 
-    _ATTRIBUTES: set[str] = None
-    """
-    Attributes that can be stored in this class
+    **Required attributes**::
 
-    Example:
         _ATTRIBUTES = {"settings", "path"}
+
+    Attributes:
+        _ATTRIBUTES: Attributes that can be stored in this class
     """
+
+    _REQUIRED_ATTRIBUTES = {
+        "_ATTRIBUTES",
+    }
+
+    _ATTRIBUTES: set[str]
 
     def __init__(self, **kwargs) -> None:
-        for name in self._ATTRIBUTES:
-            setattr(self, name, kwargs.get(name, None))
+        self._check_attributes()
+
+        for attribute in self._ATTRIBUTES:
+            setattr(self, attribute, kwargs.get(attribute, getattr(self, attribute, None)))
 
     def update(self, **kwargs) -> None:
+        """
+        Updates provided attributes in object
+        """
+
         self.__init__(**kwargs)

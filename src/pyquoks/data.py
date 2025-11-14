@@ -1,470 +1,482 @@
 from __future__ import annotations
-import configparser, datetime, logging, sqlite3, json, sys, io, os
-import requests, PIL.Image, PIL.ImageDraw
-from . import utils
+import configparser, datetime, logging, sqlite3, typing, json, sys, io, os
+import requests, PIL.Image
+import pyquoks.utils
 
 
 # region Providers
 
-class IDataProvider:
+class DataProvider(pyquoks.utils._HasRequiredAttributes):
     """
     Class for providing data from JSON-like files
+
+    **Required attributes**::
+
+        _OBJECTS = {"users": UsersContainer}
+
+        # Predefined:
+
+        _PATH = pyquoks.utils.get_path("data/")
+
+        _FILENAME = "{0}.json"
+
+    Attributes:
+        _OBJECTS: Dictionary with filenames and containers
+        _PATH: Path to the directory with JSON-like files
+        _FILENAME: Filename of JSON-like files
     """
 
-    _PATH: str = utils.get_path("data/")
-    """
-    Path to the directory with JSON-like files
-    """
+    _REQUIRED_ATTRIBUTES = {
+        "_OBJECTS",
+        "_PATH",
+        "_FILENAME",
+    }
+
+    _OBJECTS: dict[str, type]
+
+    _PATH: str = pyquoks.utils.get_path("data/")
 
     _FILENAME: str = "{0}.json"
-    """
-    Filename of JSON-like files
-    """
-
-    _DATA_VALUES: dict[str, type]
-    """
-    Dictionary with filenames and containers
-
-    Example:
-        _DATA_VALUES = {"users": UsersContainer}
-    """
 
     def __init__(self) -> None:
-        for filename, container in self._DATA_VALUES.items():
+        self._check_attributes()
+
+        for filename, object_class in self._OBJECTS.items():
             try:
                 with open(self._PATH + self._FILENAME.format(filename), "rb") as file:
-                    setattr(self, filename, container(json.loads(file.read())))
+                    setattr(self, filename, object_class(json.loads(file.read())))
             except:
                 setattr(self, filename, None)
 
 
-class IConfigProvider:
-    """
-    Class for providing data from configuration file
-    """
-
-    class IConfig:
-        """
-        Class that represents a section in configuration file
-        """
-
-        _SECTION: str = None
-        """
-        Name of the section in configuration file
-
-        Example:
-            _SECTION = "Settings"
-        """
-
-        _CONFIG_VALUES: dict[str, type]
-        """
-        Dictionary with settings and their types
-        """
-
-        def __init__(self, parent: IConfigProvider = None) -> None:
-            if isinstance(parent, IConfigProvider):
-                self._CONFIG_VALUES = parent._CONFIG_VALUES.get(self._SECTION)
-
-                self._incorrect_content_exception = configparser.ParsingError(
-                    "configuration file is filled incorrectly!"
-                )
-                self._config = configparser.ConfigParser()
-                self._config.read(parent._PATH)
-
-                if not self._config.has_section(self._SECTION):
-                    self._config.add_section(self._SECTION)
-
-                for setting, data_type in self._CONFIG_VALUES.items():
-                    try:
-                        setattr(self, setting, self._config.get(self._SECTION, setting))
-                    except:
-                        self._config.set(self._SECTION, setting, data_type.__name__)
-                        with open(parent._PATH, "w", encoding="utf-8") as file:
-                            self._config.write(file)
-
-                for setting, data_type in self._CONFIG_VALUES.items():
-                    try:
-                        match data_type.__name__:
-                            case "int":
-                                setattr(self, setting, int(getattr(self, setting)))
-                            case "float":
-                                setattr(self, setting, float(getattr(self, setting)))
-                            case "bool":
-                                if getattr(self, setting) not in (str(True), str(False)):
-                                    setattr(self, setting, None)
-                                    raise self._incorrect_content_exception
-                                else:
-                                    setattr(self, setting, getattr(self, setting) == str(True))
-                            case "dict" | "list":
-                                setattr(self, setting, json.loads(getattr(self, setting)))
-                    except:
-                        setattr(self, setting, None)
-                        raise self._incorrect_content_exception
-
-                if not self.values:
-                    raise self._incorrect_content_exception
-
-        @property
-        def values(self) -> dict | None:
-            """
-            :return: Values stored in section
-            """
-
-            try:
-                return {setting: getattr(self, setting) for setting in self._CONFIG_VALUES.keys()}
-            except:
-                return None
-
-    _PATH: str = utils.get_path("config.ini")
-    """
-    Path to the configuration file
-    """
-
-    _CONFIG_VALUES: dict[str, dict[str, type]]
-    """
-    Dictionary with sections, their settings and their types
-
-    Example:
-        _CONFIG_VALUES = {"Settings": {"version": str}}
-    """
-
-    _CONFIG_OBJECTS: dict[str, type]
-    """
-    Dictionary with names of attributes and child objects
-
-    Example:
-        _CONFIG_OBJECTS = {"settings": SettingsConfig}
-    """
-
-    def __init__(self) -> None:
-        for name, data_class in self._CONFIG_OBJECTS.items():
-            setattr(self, name, data_class(self))
-
-
-class IAssetsProvider:
+class AssetsProvider(pyquoks.utils._HasRequiredAttributes):
     """
     Class for providing various assets data
+
+    **Required attributes**::
+
+        _OBJECTS = {"images": ImagesDirectory, "example": ExampleNetwork}
+
+        # Predefined:
+
+        _PATH = pyquoks.utils.get_path("assets/")
+
+    Attributes:
+        _OBJECTS: Dictionary with names of attributes and child objects
+        _PATH: Path to the directory with assets folders
     """
 
-    class IDirectory:
+    class Directory(pyquoks.utils._HasRequiredAttributes):
         """
         Class that represents a directory with various assets
-        """
 
-        _PATH: str = None
-        """
-        Path to the directory with assets files
+        **Required attributes**::
 
-        Example:
+            _ATTRIBUTES = {"picture1", "picture2"}
+
             _PATH = "images/"
-        """
 
-        _FILENAME: str = None
-        """
-        Filename of assets files
-
-        Example:
             _FILENAME = "{0}.png"
+
+        Attributes:
+            _ATTRIBUTES: Names of files in the directory
+            _PATH: Path to the directory with assets files
+            _FILENAME: Filename of assets files
+            _parent: Parent object
         """
 
-        _NAMES: set[str]
-        """
-        Names of files in the directory
+        _REQUIRED_ATTRIBUTES = {
+            "_ATTRIBUTES",
+            "_PATH",
+            "_FILENAME",
+        }
 
-        Example:
-            _NAMES = {"picture1", "picture2"}
-        """
+        _ATTRIBUTES: set[str]
 
-        def __init__(self, parent: IAssetsProvider) -> None:
-            self._PATH = parent._PATH + self._PATH
+        _PATH: str
 
-            if isinstance(parent, IAssetsProvider):
-                for filename in self._NAMES:
-                    setattr(self, filename, parent.file_image(self._PATH + self._FILENAME.format(filename)))
+        _FILENAME: str
 
-    class INetwork:
+        _parent: AssetsProvider | None
+
+        def __init__(self, parent: AssetsProvider = None) -> None:
+            self._check_attributes()
+
+            if parent:
+                self._parent = parent
+            elif not hasattr(self, "_parent") or not self._parent:
+                raise AttributeError("This class cannot be initialized without a parent object!")
+
+            self._PATH = self._parent._PATH + self._PATH
+
+            for filename in self._ATTRIBUTES:
+                try:
+                    setattr(self, filename, self._parent.file_image(
+                        path=self._PATH + self._FILENAME.format(filename),
+                    ))
+                except:
+                    setattr(self, filename, None)
+
+    class Network(pyquoks.utils._HasRequiredAttributes):
         """
         Class that represents a set of images obtained from a network
+
+        **Required attributes**::
+
+            _URLS = {"example": "https://example.com/image.png"}
+
+        Attributes:
+            _URLS: Dictionary with names of attributes and URLs
+            _parent: Parent object
         """
+
+        _REQUIRED_ATTRIBUTES = {
+            "_URLS",
+        }
 
         _URLS: dict[str, str]
-        """
-        Dictionary with names of attributes and URLs
 
-        Example:
-            _URLS = {"example": "https://example.com/image.png"}
-        """
+        _parent: AssetsProvider | None
 
-        def __init__(self, parent: IAssetsProvider) -> None:
-            if isinstance(parent, IAssetsProvider):
-                for name, url in self._URLS.items():
-                    setattr(self, name, parent.network_image(url))
+        def __init__(self, parent: AssetsProvider = None) -> None:
+            self._check_attributes()
 
-    _PATH: str = utils.get_path("assets/")
-    """
-    Path to the directory with assets folders
-    """
+            if parent:
+                self._parent = parent
+            elif not hasattr(self, "_parent") or not self._parent:
+                raise AttributeError("This class cannot be initialized without a parent object!")
 
-    _ASSETS_OBJECTS: dict[str, type]
-    """
-    Dictionary with names of attributes and child objects
+            for attribute, url in self._URLS.items():
+                try:
+                    setattr(self, attribute, self._parent.network_image(
+                        url=url,
+                    ))
+                except:
+                    setattr(self, attribute, None)
 
-    Example:
-        _ASSETS_OBJECTS = {"images": ImagesAssets, "example": ExampleNetwork}
-    """
+    _REQUIRED_ATTRIBUTES = {
+        "_OBJECTS",
+        "_PATH",
+    }
+
+    _OBJECTS: dict[str, type]
+
+    _PATH: str = pyquoks.utils.get_path("assets/")
 
     def __init__(self) -> None:
-        for name, data_class in self._ASSETS_OBJECTS.items():
-            setattr(self, name, data_class(self))
+        self._check_attributes()
+
+        for attribute, object_class in self._OBJECTS.items():
+            setattr(self, attribute, object_class(self))
 
     @staticmethod
     def file_image(path: str) -> PIL.Image.Image:
         """
+        :param path: Absolute path of the image file
         :return: Image object from a file
         """
 
         with open(path, "rb") as file:
-            return PIL.Image.open(io.BytesIO(file.read()))
+            return PIL.Image.open(
+                fp=io.BytesIO(file.read()),
+            )
 
     @staticmethod
     def network_image(url: str) -> PIL.Image.Image:
         """
+        :param url: URL of the image file
         :return: Image object from a URL
         """
 
-        return PIL.Image.open(io.BytesIO(requests.get(url).content))
-
-    @staticmethod
-    def round_corners(image: PIL.Image.Image, radius: int) -> PIL.Image.Image:
-        """
-        :return: Image with rounded edges of the specified radius
-        """
-
-        if image.mode != "RGB":
-            image = image.convert("RGB")
-        width, height = image.size
-
-        shape = PIL.Image.new("L", (radius * 2, radius * 2), 0)
-        PIL.ImageDraw.Draw(shape).ellipse((0, 0, radius * 2, radius * 2), fill=255)
-
-        alpha = PIL.Image.new("L", image.size, "white")
-        alpha.paste(shape.crop((0, 0, radius, radius)), (0, 0))
-        alpha.paste(shape.crop((0, radius, radius, radius * 2)), (0, height - radius))
-        alpha.paste(shape.crop((radius, 0, radius * 2, radius)), (width - radius, 0))
-        alpha.paste(shape.crop((radius, radius, radius * 2, radius * 2)), (width - radius, height - radius))
-        image.putalpha(alpha)
-
-        return image
+        return PIL.Image.open(
+            fp=io.BytesIO(
+                initial_bytes=requests.get(url).content,
+            ),
+        )
 
 
-class IStringsProvider:
+class StringsProvider(pyquoks.utils._HasRequiredAttributes):
     """
     Class for providing various strings data
+
+    **Required attributes**::
+
+        _OBJECTS = {"menu": MenuStrings}
+
+    Attributes:
+        _OBJECTS: Dictionary with names of attributes and child objects
     """
 
-    class IStrings:
+    class Strings:
         """
         Class that represents a container for strings
         """
 
-        pass
+        # noinspection PyUnusedLocal
+        def __init__(self, parent: StringsProvider) -> None: ...  # TODO
 
-    _STRINGS_OBJECTS: dict[str, type]
-    """
-    Dictionary with names of attributes and child objects
+    _REQUIRED_ATTRIBUTES = {
+        "_OBJECTS",
+    }
 
-    Example:
-        _STRINGS_OBJECTS = {"localizable": LocalizableStrings}
-    """
+    _OBJECTS: dict[str, type]
 
     def __init__(self) -> None:
-        for name, data_class in self._STRINGS_OBJECTS.items():
-            setattr(self, name, data_class())
+        self._check_attributes()
+
+        for attribute, object_class in self._OBJECTS.items():
+            setattr(self, attribute, object_class(self))
 
 
 # endregion
 
 # region Managers
 
-class IDatabaseManager:
+class ConfigManager(pyquoks.utils._HasRequiredAttributes):
     """
-    Class for managing database connections
-    """
+    Class for managing data in configuration file
 
-    class IDatabase(sqlite3.Connection):
-        """
-        Class that represents a database connection
-        """
+    **Required attributes**::
 
-        _NAME: str = None
-        """
-        Name of the database
+        _OBJECTS = {"settings": SettingsConfig}
 
-        Example:
-            _NAME = "users"
-        """
+        # Predefined
 
-        _SQL: str = None
-        """
-        SQL expression for creating a database
+        _PATH = pyquoks.utils.get_path("config.ini")
 
-        Example:
-            _SQL = f\"\"\"CREATE TABLE IF NOT EXISTS {_NAME} (user_id INTEGER PRIMARY KEY NOT NULL)\"\"\"
-        """
-
-        _FILENAME: str = "{0}.db"
-        """
-        File extension of database
-        """
-
-        def __init__(self, parent: IDatabaseManager) -> None:
-            if isinstance(parent, IDatabaseManager):
-                self._FILENAME = self._FILENAME.format(self._NAME)
-
-                super().__init__(
-                    database=parent._PATH + self._FILENAME,
-                    check_same_thread=False,
-                )
-                self.row_factory = sqlite3.Row
-
-                cursor = self.cursor()
-                cursor.execute(self._SQL)
-                self.commit()
-
-    _PATH: str = utils.get_path("db/")
-    """
-    Path to the directory with databases
+    Attributes:
+        _OBJECTS: Dictionary with names of attributes and child objects
+        _PATH: Path to the configuration file
     """
 
-    _DATABASE_OBJECTS: dict[str, type]
-    """
-    Dictionary with names of attributes and child objects
+    class Config(pyquoks.utils._HasRequiredAttributes):
+        """
+        Class that represents a section in configuration file
 
-    Example:
-        _DATABASE_OBJECTS = {"users": UsersDatabase}
-    """
+        **Required attributes**::
+
+            _SECTION = "Settings"
+
+            _VALUES = {"version": str, "beta": bool}
+
+        Attributes:
+            _SECTION: Name of the section in configuration file
+            _VALUES: Dictionary with settings and their types
+            _parent: Parent object
+        """
+
+        _REQUIRED_ATTRIBUTES = {
+            "_SECTION",
+            "_VALUES",
+        }
+
+        _SECTION: str
+
+        _VALUES: dict[str, type]
+
+        _incorrect_content_exception = configparser.ParsingError(
+            source="configuration file is filled incorrectly",
+        )
+
+        _parent: ConfigManager
+
+        def __init__(self, parent: ConfigManager = None) -> None:
+            self._check_attributes()
+
+            if parent:
+                self._parent = parent
+            elif not hasattr(self, "_parent") or not self._parent:
+                raise AttributeError("This class cannot be initialized without a parent object!")
+
+            self._config = configparser.ConfigParser()
+            self._config.read(self._parent._PATH)
+
+            if not self._config.has_section(self._SECTION):
+                self._config.add_section(self._SECTION)
+
+            for attribute, object_type in self._VALUES.items():
+                try:
+                    setattr(self, attribute, self._config.get(self._SECTION, attribute))
+                except:
+                    self._config.set(self._SECTION, attribute, object_type.__name__)
+                    with open(self._parent._PATH, "w", encoding="utf-8") as file:
+                        self._config.write(file)
+
+            for attribute, object_type in self._VALUES.items():
+                try:
+                    match object_type.__name__:
+                        case str.__name__:
+                            pass
+                        case int.__name__:
+                            setattr(self, attribute, int(getattr(self, attribute)))
+                        case float.__name__:
+                            setattr(self, attribute, float(getattr(self, attribute)))
+                        case bool.__name__:
+                            if getattr(self, attribute) not in [str(True), str(False)]:
+                                setattr(self, attribute, None)
+                                raise self._incorrect_content_exception
+                            else:
+                                setattr(self, attribute, getattr(self, attribute) == str(True))
+                        case dict.__name__ | list.__name__:
+                            setattr(self, attribute, json.loads(getattr(self, attribute)))
+                        case _:
+                            raise ValueError(f"{object_type.__name__} type is not supported!")
+                except:
+                    setattr(self, attribute, None)
+
+                    raise self._incorrect_content_exception
+
+        @property
+        def _values(self) -> dict | None:
+            """
+            :return: Values stored in this section
+            """
+
+            try:
+                return {
+                    attribute: getattr(self, attribute) for attribute in self._VALUES.keys()
+                }
+            except:
+                return None
+
+        def update(self, **kwargs) -> None:
+            """
+            Updates provided attributes in object
+            """
+
+            for attribute, value in kwargs.items():
+                if attribute not in self._VALUES.keys():
+                    raise AttributeError(f"{attribute} is not specified!")
+                elif type(value) is not self._VALUES.get(attribute):
+                    raise AttributeError(
+                        f"{attribute} has incorrect type! (must be {self._VALUES.get(attribute).__name__})",
+                    )
+
+                setattr(self, attribute, value)
+
+                self._config.set(self._SECTION, attribute, value)
+                with open(self._parent._PATH, "w", encoding="utf-8") as file:
+                    self._config.write(file)
+
+    _REQUIRED_ATTRIBUTES = {
+        "_OBJECTS",
+        "_PATH",
+    }
+
+    _OBJECTS: dict[str, type]
+
+    _PATH: str = pyquoks.utils.get_path("config.ini")
 
     def __init__(self) -> None:
-        os.makedirs(self._PATH, exist_ok=True)
+        self._check_attributes()
 
-        for name, data_class in self._DATABASE_OBJECTS.items():
-            setattr(self, name, data_class(self))
+        for attribute, object_class in self._OBJECTS.items():
+            setattr(self, attribute, object_class(self))
+
+
+class DatabaseManager(pyquoks.utils._HasRequiredAttributes):
+    """
+    Class for managing database connections
+
+    **Required attributes**::
+
+        _OBJECTS = {"users": UsersDatabase}
+
+        # Predefined
+
+        _PATH = pyquoks.utils.get_path("db/")
+
+    Attributes:
+        _OBJECTS: Dictionary with names of attributes and child objects
+        _PATH: Path to the directory with databases
+    """
+
+    class Database(sqlite3.Connection, pyquoks.utils._HasRequiredAttributes):
+        """
+        Class that represents a database connection
+
+        **Required attributes**::
+
+            _NAME = "users"
+
+            _SQL = f\"""CREATE TABLE IF NOT EXISTS {_NAME} (user_id INTEGER PRIMARY KEY NOT NULL)\"""
+
+            # Predefined
+
+            _FILENAME = "{0}.db"
+
+        Attributes:
+            _NAME: Name of the database
+            _SQL: SQL expression for creating a table
+            _FILENAME: Filename of the database
+            _parent: Parent object
+        """
+
+        _REQUIRED_ATTRIBUTES = {
+            "_NAME",
+            "_SQL",
+            "_FILENAME",
+        }
+
+        _NAME: str
+
+        _SQL: str
+
+        _FILENAME: str = "{0}.db"
+
+        _parent: DatabaseManager
+
+        def __init__(self, parent: DatabaseManager = None) -> None:
+            self._check_attributes()
+
+            if parent:
+                self._parent = parent
+            elif not hasattr(self, "_parent") or not self._parent:
+                raise AttributeError("This class cannot be initialized without a parent object!")
+
+            self._FILENAME = self._FILENAME.format(self._NAME)
+
+            super().__init__(
+                database=self._parent._PATH + self._FILENAME,
+                check_same_thread=False,
+            )
+            self.row_factory = sqlite3.Row
+
+            cursor = self.cursor()
+
+            cursor.execute(
+                self._SQL,
+            )
+
+            self.commit()
+
+    _REQUIRED_ATTRIBUTES = {
+        "_OBJECTS",
+        "_PATH",
+    }
+
+    _OBJECTS: dict[str, type]
+
+    _PATH: str = pyquoks.utils.get_path("db/")
+
+    def __init__(self):
+        self._check_attributes()
+
+        os.makedirs(
+            name=self._PATH,
+            exist_ok=True,
+        )
+
+        for attribute, object_class in self._OBJECTS.items():
+            setattr(self, attribute, object_class(self))
 
     def close_all(self) -> None:
         """
         Closes all database connections
         """
-        for database in self._DATABASE_OBJECTS.keys():
+
+        for database in self._OBJECTS.keys():
             getattr(self, database).close()
-
-
-if sys.platform == "win32":
-    import winreg
-
-
-    class IRegistryManager:
-        """
-        Class for managing data in the Windows Registry
-        """
-
-        class IRegistry:
-            """
-            Class that represents a key with parameters in the Windows Registry
-            """
-
-            _NAME: str = None
-            """
-            Name of key in the Windows Registry
-
-            Example:
-                _NAME = "OAuth"
-            """
-
-            _REGISTRY_VALUES: dict[str, int]
-            """
-            Dictionary with settings and their types
-            """
-
-            _path: winreg.HKEYType
-
-            def __init__(self, parent: IRegistryManager = None) -> None:
-                if isinstance(parent, IRegistryManager):
-                    self._REGISTRY_VALUES = parent._REGISTRY_VALUES.get(self._NAME)
-                    self._path = winreg.CreateKey(parent._path, self._NAME)
-
-                    for setting in self._REGISTRY_VALUES.keys():
-                        try:
-                            setattr(self, setting, winreg.QueryValueEx(self._path, setting)[int()])
-                        except:
-                            setattr(self, setting, None)
-
-            @property
-            def values(self) -> dict | None:
-                """
-                :return: Values stored in key in the Windows Registry
-                """
-
-                try:
-                    return {setting: getattr(self, setting) for setting in self._REGISTRY_VALUES.keys()}
-                except:
-                    return None
-
-            def refresh(self) -> IRegistryManager.IRegistry:
-                """
-                :return: Instance with refreshed values
-                """
-
-                self.__init__()
-                return self
-
-            def update(self, **kwargs) -> None:
-                """
-                Updates provided settings in the Windows Registry
-                """
-
-                for setting, value in kwargs.items():
-                    winreg.SetValueEx(self._path, setting, None, self._REGISTRY_VALUES.get(setting), value)
-                    setattr(self, setting, value)
-
-        _KEY: str
-        """
-        Path to key in the Windows Registry
-
-        Example:
-            _KEY = "Software\\\\\\\\diquoks Software\\\\\\\\pyquoks"
-        """
-
-        _REGISTRY_VALUES: dict[str, dict[str, int]]
-        """
-        Dictionary with keys, their settings and their types
-
-        Example:
-            _REGISTRY_VALUES = {"OAuth": {"access_token": winreg.REG_SZ}}
-        """
-
-        _REGISTRY_OBJECTS: dict[str, type]
-        """
-        Dictionary with names of attributes and child objects
-
-        Example:
-            _REGISTRY_OBJECTS = {"oauth": OAuthRegistry}
-        """
-
-        _path: winreg.HKEYType
-
-        def __init__(self) -> None:
-            self._path = winreg.CreateKey(winreg.HKEY_CURRENT_USER, self._KEY)
-
-            for name, data_class in self._REGISTRY_OBJECTS.items():
-                setattr(self, name, data_class(self))
-
-        def refresh(self) -> IRegistryManager:
-            """
-            :return: Instance with refreshed values
-            """
-
-            self.__init__()
-            return self
 
 
 # endregion
@@ -474,61 +486,76 @@ if sys.platform == "win32":
 class LoggerService(logging.Logger):
     """
     Class that provides methods for parallel logging
+
+    Attributes:
+        _LOG_PATH: Path to the logs file
     """
 
-    _LOGS_PATH: str | None
-    """
-    Path to the logs file
-    """
+    _LOG_PATH: str | None
 
     def __init__(
             self,
-            name: str,
-            path: str = utils.get_path("logs/", only_abspath=True),
-            filename: str = datetime.datetime.now().strftime("%d-%m-%y-%H-%M-%S"),
-            file_handling: bool = True,
+            filename: str,
             level: int = logging.NOTSET,
+            file_handling: bool = True,
+            path: str = pyquoks.utils.get_path("logs/"),
     ) -> None:
-        super().__init__(name, level)
+        super().__init__(filename, level)
 
-        stream_handler = logging.StreamHandler(sys.stdout)
-        stream_handler.setFormatter(
+        self.stream_handler = logging.StreamHandler(sys.stdout)
+        self.stream_handler.setFormatter(
             logging.Formatter(
                 fmt="$levelname $asctime $name - $message",
                 datefmt="%d-%m-%y %H:%M:%S",
                 style="$",
             )
         )
-        self.addHandler(stream_handler)
+        self.addHandler(self.stream_handler)
 
         if file_handling:
             os.makedirs(path, exist_ok=True)
-            self._LOG_PATH = path + f"{filename}-{name}.log"
+            self._LOG_PATH = path + f"{int(datetime.datetime.now().timestamp())}.{filename}.log"
 
-            file_handler = logging.FileHandler(
-                self._LOG_PATH,
+            self.file_handler = logging.FileHandler(
+                filename=self._LOG_PATH,
                 encoding="utf-8",
             )
-            file_handler.setFormatter(
+            self.file_handler.setFormatter(
                 logging.Formatter(
                     fmt="$levelname $asctime - $message",
                     datefmt="%d-%m-%y %H:%M:%S",
                     style="$",
                 ),
             )
-            self.addHandler(file_handler)
+            self.addHandler(self.file_handler)
+        else:
+            self._LOG_PATH = None
 
-    def get_logs_file(self) -> io.BufferedReader:
+    @property
+    def file(self) -> typing.BinaryIO | None:
         """
         :return: Opened file-like object of current logs
         """
-        return open(self._LOG_PATH, "rb")
 
-    def log_exception(self, e: Exception) -> None:
+        if self._LOG_PATH:
+            return open(self._LOG_PATH, "rb")
+        else:
+            return None
+
+    def log_error(self, exception: Exception, raise_again: bool = False) -> None:
         """
         Logs an exception with detailed traceback
+
+        :param exception: Exception to be logged
+        :param raise_again: Whether or not exception should be raised again
         """
 
-        self.error(msg=e, exc_info=True)
+        self.error(
+            msg=exception,
+            exc_info=True,
+        )
+
+        if raise_again:
+            raise exception
 
 # endregion
