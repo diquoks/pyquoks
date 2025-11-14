@@ -6,7 +6,7 @@ class Model:
     """
     Class for storing parameters and models
 
-    **Optional Attributes**::
+    **Optional attributes**::
 
         _ATTRIBUTES = {"beatmap_id", "score_id"}
 
@@ -49,7 +49,7 @@ class Container:
     """
     Class for storing lists of models and another parameters
 
-    **Optional Attributes**::
+    **Optional attributes**::
 
         _ATTRIBUTES = {"beatmap_id", "score_id"}
 
@@ -108,7 +108,7 @@ class Values(pyquoks.utils._HasRequiredAttributes):
     """
     Class for storing various parameters and values
 
-    **Required Attributes**::
+    **Required attributes**::
 
         _ATTRIBUTES = {"settings", "path"}
 
@@ -126,7 +126,11 @@ class Values(pyquoks.utils._HasRequiredAttributes):
         self._check_attributes()
 
         for attribute in self._ATTRIBUTES:
-            setattr(self, attribute, kwargs.get(attribute, None))
+            setattr(self, attribute, kwargs.get(attribute, getattr(self, attribute, None)))
 
     def update(self, **kwargs) -> None:
+        """
+        Updates provided attributes in object
+        """
+
         self.__init__(**kwargs)

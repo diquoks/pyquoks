@@ -8,7 +8,7 @@ class LocalhostFlask(flask.Flask, pyquoks.utils._HasRequiredAttributes):
     """
     Class for creating a simple localhost server
 
-    **Required Attributes**::
+    **Required attributes**::
 
         _RULES = {"/": self.base_redirect}
 

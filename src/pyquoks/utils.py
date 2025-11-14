@@ -6,7 +6,7 @@ class _HasRequiredAttributes:
     """
     Assistive class for checking for required attributes
 
-    **Required Attributes**::
+    **Required attributes**::
 
         _REQUIRED_ATTRIBUTES = {"_ATTRIBUTES", "_OBJECTS"}
 

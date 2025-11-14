@@ -6,7 +6,7 @@ class TestTest(pyquoks.test.TestBase):
     _MODULE_NAME = __name__
 
     def test_assert_is(self) -> None:
-        self.assert_is(
+        self.assert_equal(
             func_name=self.test_assert_is.__name__,
             test_data="test_data",
             test_expected="test_data",

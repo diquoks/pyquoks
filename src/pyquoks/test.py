@@ -7,7 +7,7 @@ class TestBase(unittest.TestCase, pyquoks.utils._HasRequiredAttributes):
     """
     Class for performing unit testing
 
-    **Required Attributes**::
+    **Required attributes**::
 
         _MODULE_NAME = __name__
 
@@ -35,12 +35,12 @@ class TestBase(unittest.TestCase, pyquoks.utils._HasRequiredAttributes):
     def _get_func_name(self, func_name: str) -> str:
         return f"{self._MODULE_NAME}.{func_name}"
 
-    def assert_is(
+    def assert_equal(
             self,
             func_name: str,
             test_data: object,
             test_expected: object,
-    ):
+    ) -> None:
         self._logger.info(
             msg=(
                 f"{self._get_func_name(func_name)}:\n"
@@ -50,9 +50,9 @@ class TestBase(unittest.TestCase, pyquoks.utils._HasRequiredAttributes):
         )
 
         try:
-            self.assertIs(
-                expr1=test_data,
-                expr2=test_expected,
+            self.assertEqual(
+                first=test_data,
+                second=test_expected,
             )
         except Exception as exception:
             self._logger.log_error(
