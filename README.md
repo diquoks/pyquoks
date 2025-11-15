@@ -16,7 +16,6 @@
 
 #### Связь с разработчиком
 
-- [План разработки pyquoks](https://www.icloud.com/notes/0e0C-Bm4IkqXuBYqJrq00yhog)
 - [Telegram для связи](https://t.me/diquoks)
 - [Почта для связи](mailto:diquoks@yandex.ru)
 
