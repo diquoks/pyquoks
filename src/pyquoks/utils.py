@@ -1,5 +1,6 @@
 from __future__ import annotations
-import sys, os
+import datetime, sys, os
+import psutil
 
 
 class _HasRequiredAttributes:
@@ -36,3 +37,15 @@ def get_path(relative_path: str, use_meipass: bool = False) -> str:
         base_path = os.path.abspath(".")
 
     return os.path.join(base_path, relative_path)
+
+
+def get_started_datetime() -> datetime.datetime:
+    """
+    :return: Datetime when the current process was started
+    """
+
+    process = psutil.Process(os.getpid())
+
+    return datetime.datetime.fromtimestamp(
+        timestamp=process.create_time(),
+    )
