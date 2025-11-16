@@ -62,6 +62,8 @@ class DataProvider(pyquoks.data.DataProvider):
         "test_models": TestModelsContainer,
     }
 
+    _PATH = pyquoks.utils.get_path("resources/data/")
+
     test_list: TestListContainer
     test_models: TestModelsContainer
 
@@ -81,6 +83,8 @@ class AssetsProvider(pyquoks.data.AssetsProvider):
     _OBJECTS = {
         "test_images": TestImagesDirectory,
     }
+
+    _PATH = pyquoks.utils.get_path("resources/assets/")
 
     test_images: TestImagesDirectory
 
@@ -122,7 +126,7 @@ class ConfigManager(pyquoks.data.ConfigManager):
         "test": TestConfig,
     }
 
-    _PATH = pyquoks.utils.get_path("config_manager_test.ini")
+    _PATH = pyquoks.utils.get_path("resources/config_manager_test.ini")
 
     test: TestConfig
 
@@ -189,6 +193,8 @@ class DatabaseManager(pyquoks.data.DatabaseManager):
     _OBJECTS = {
         "test": TestDatabase,
     }
+
+    _PATH = pyquoks.utils.get_path("resources/db/")
 
     test: TestDatabase
 
