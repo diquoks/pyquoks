@@ -1,6 +1,6 @@
 [project]
 name = "pyquoks"
-version = "2.0.2"
+version = "2.0.3"
 description = "Пакет PyPI для часто используемых модулей в проектах diquoks"
 authors = [
     { name = "Denis Titovets <den232titovets@yandex.ru>" }

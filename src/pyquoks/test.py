@@ -71,7 +71,7 @@ class TestCase(unittest.TestCase, pyquoks.utils._HasRequiredAttributes):
         self._logger.info(
             msg=(
                 f"{self._get_func_name(func_name)}:\n"
-                f"Function: {test_func.__name__}\n"
+                f"Function: {test_func.__name__}()\n"
                 f"Exception: {test_exception.__name__}\n"
             ),
         )

@@ -39,12 +39,13 @@ def get_path(relative_path: str, use_meipass: bool = False) -> str:
     return os.path.join(base_path, relative_path)
 
 
-def get_started_datetime() -> datetime.datetime:
+def get_process_created_datetime(pid: int = os.getpid()) -> datetime.datetime:
     """
-    :return: Datetime when the current process was started
+    :param pid: ID of the process
+    :return: Datetime when the process was created
     """
 
-    process = psutil.Process(os.getpid())
+    process = psutil.Process(pid)
 
     return datetime.datetime.fromtimestamp(
         timestamp=process.create_time(),
