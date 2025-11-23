@@ -1,5 +1,5 @@
 from __future__ import annotations
-import unittest, types
+import unittest, typing, types
 import pyquoks.data, pyquoks.utils
 
 
@@ -53,6 +53,35 @@ class TestCase(unittest.TestCase, pyquoks.utils._HasRequiredAttributes):
             self.assertEqual(
                 first=test_data,
                 second=test_expected,
+            )
+        except Exception as exception:
+            self._logger.log_error(
+                exception=exception,
+                raise_again=True,
+            )
+
+    def assert_raises(
+            self,
+            func_name: str,
+            test_func: typing.Callable,
+            test_exception: type[BaseException],
+            *args,
+            **kwargs,
+    ) -> None:
+        self._logger.info(
+            msg=(
+                f"{self._get_func_name(func_name)}:\n"
+                f"Function: {test_func.__name__}\n"
+                f"Exception: {test_exception.__name__}\n"
+            ),
+        )
+
+        try:
+            self.assertRaises(
+                test_exception,
+                test_func,
+                *args,
+                **kwargs,
             )
         except Exception as exception:
             self._logger.log_error(

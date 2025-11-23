@@ -1,4 +1,5 @@
 from __future__ import annotations
+import typing
 import PIL.Image
 import pyquoks
 
@@ -198,4 +199,12 @@ class DatabaseManager(pyquoks.data.DatabaseManager):
 
     test: TestDatabase
 
+
 # endregion
+
+# region utils.py
+
+def raise_test_exception() -> typing.NoReturn:
+    raise NotImplementedError
+
+# region

@@ -213,7 +213,8 @@ class StringsProvider(pyquoks.utils._HasRequiredAttributes):
         """
 
         # noinspection PyUnusedLocal
-        def __init__(self, parent: StringsProvider) -> None: ...  # TODO
+        def __init__(self, parent: StringsProvider) -> None:
+            ...  # TODO
 
     _REQUIRED_ATTRIBUTES = {
         "_OBJECTS",
@@ -459,7 +460,7 @@ class DatabaseManager(pyquoks.utils._HasRequiredAttributes):
 
     _PATH: str = pyquoks.utils.get_path("db/")
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._check_attributes()
 
         os.makedirs(
