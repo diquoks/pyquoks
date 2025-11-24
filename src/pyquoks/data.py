@@ -1,6 +1,18 @@
 from __future__ import annotations
-import configparser, datetime, logging, sqlite3, typing, json, sys, io, os
-import requests, PIL.Image
+
+import configparser
+import datetime
+import io
+import json
+import logging
+import os
+import sqlite3
+import sys
+import typing
+
+import PIL.Image
+import requests
+
 import pyquoks.utils
 
 

@@ -1,6 +1,9 @@
 from __future__ import annotations
+
 import typing
+
 import PIL.Image
+
 import pyquoks
 
 

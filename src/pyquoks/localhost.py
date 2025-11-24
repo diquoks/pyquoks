@@ -1,6 +1,10 @@
 from __future__ import annotations
+
 import typing
-import waitress, flask
+
+import flask
+import waitress
+
 import pyquoks.utils
 
 

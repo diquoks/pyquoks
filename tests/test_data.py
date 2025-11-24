@@ -1,7 +1,11 @@
 from __future__ import annotations
+
 import shutil
+
 import PIL.Image
-import pyquoks, _test_utils
+
+import _test_utils
+import pyquoks
 
 
 class TestData(pyquoks.test.TestCase):
