@@ -1,6 +1,9 @@
 from __future__ import annotations
+
 import typing
+
 import PIL.Image
+
 import pyquoks
 
 
@@ -24,7 +27,7 @@ class TestDataModel(pyquoks.models.Model):
     test_data: str
 
 
-class TestModelsContainer(pyquoks.models.Container):
+class TestContainer(pyquoks.models.Container):
     _ATTRIBUTES = {
         "test",
     }
@@ -33,11 +36,16 @@ class TestModelsContainer(pyquoks.models.Container):
         "test_model": TestModel,
     }
 
+    _DATA = {
+        "test_list": TestModel,
+    }
+
     test: str
+    test_list: list[TestModel]
     test_model: TestModel
 
 
-class TestListContainer(pyquoks.models.Container):
+class TestListing(pyquoks.models.Listing):
     _DATA = {
         "test_models": TestModel,
     }
@@ -59,14 +67,14 @@ class TestValues(pyquoks.models.Values):
 
 class DataProvider(pyquoks.data.DataProvider):
     _OBJECTS = {
-        "test_list": TestListContainer,
-        "test_models": TestModelsContainer,
+        "test_container": TestContainer,
+        "test_listing": TestListing,
     }
 
     _PATH = pyquoks.utils.get_path("resources/data/")
 
-    test_list: TestListContainer
-    test_models: TestModelsContainer
+    test_container: TestContainer
+    test_listing: TestListing
 
 
 class AssetsProvider(pyquoks.data.AssetsProvider):

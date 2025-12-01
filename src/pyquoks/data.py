@@ -1,6 +1,18 @@
 from __future__ import annotations
-import configparser, datetime, logging, sqlite3, typing, json, sys, io, os
-import requests, PIL.Image
+
+import configparser
+import datetime
+import io
+import json
+import logging
+import os
+import sqlite3
+import sys
+import typing
+
+import PIL.Image
+import requests
+
 import pyquoks.utils
 
 
@@ -45,7 +57,7 @@ class DataProvider(pyquoks.utils._HasRequiredAttributes):
             try:
                 with open(self._PATH + self._FILENAME.format(filename), "rb") as file:
                     setattr(self, filename, object_class(json.loads(file.read())))
-            except:
+            except Exception:
                 setattr(self, filename, None)
 
 
@@ -114,7 +126,7 @@ class AssetsProvider(pyquoks.utils._HasRequiredAttributes):
                     setattr(self, filename, self._parent.file_image(
                         path=self._PATH + self._FILENAME.format(filename),
                     ))
-                except:
+                except Exception:
                     setattr(self, filename, None)
 
     class Network(pyquoks.utils._HasRequiredAttributes):
@@ -151,7 +163,7 @@ class AssetsProvider(pyquoks.utils._HasRequiredAttributes):
                     setattr(self, attribute, self._parent.network_image(
                         url=url,
                     ))
-                except:
+                except Exception:
                     setattr(self, attribute, None)
 
     _REQUIRED_ATTRIBUTES = {
@@ -298,7 +310,7 @@ class ConfigManager(pyquoks.utils._HasRequiredAttributes):
             for attribute, object_type in self._VALUES.items():
                 try:
                     setattr(self, attribute, self._config.get(self._SECTION, attribute))
-                except:
+                except Exception:
                     self._config.set(self._SECTION, attribute, object_type.__name__)
                     with open(self._parent._PATH, "w", encoding="utf-8") as file:
                         self._config.write(file)
@@ -322,7 +334,7 @@ class ConfigManager(pyquoks.utils._HasRequiredAttributes):
                             setattr(self, attribute, json.loads(getattr(self, attribute)))
                         case _:
                             raise ValueError(f"{object_type.__name__} type is not supported!")
-                except:
+                except Exception:
                     setattr(self, attribute, None)
 
                     raise self._incorrect_content_exception
@@ -337,7 +349,7 @@ class ConfigManager(pyquoks.utils._HasRequiredAttributes):
                 return {
                     attribute: getattr(self, attribute) for attribute in self._VALUES.keys()
                 }
-            except:
+            except Exception:
                 return None
 
         def update(self, **kwargs) -> None:

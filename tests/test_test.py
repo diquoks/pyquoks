@@ -1,6 +1,7 @@
 from __future__ import annotations
-import pyquoks
+
 import _test_utils
+import pyquoks
 
 
 class TestTest(pyquoks.test.TestCase):

@@ -1,5 +1,9 @@
 from __future__ import annotations
-import datetime, sys, os
+
+import datetime
+import os
+import sys
+
 import psutil
 
 

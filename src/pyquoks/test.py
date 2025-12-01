@@ -1,6 +1,11 @@
 from __future__ import annotations
-import unittest, typing, types
-import pyquoks.data, pyquoks.utils
+
+import types
+import typing
+import unittest
+
+import pyquoks.data
+import pyquoks.utils
 
 
 class TestCase(unittest.TestCase, pyquoks.utils._HasRequiredAttributes):
