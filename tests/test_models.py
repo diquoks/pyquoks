@@ -16,15 +16,23 @@ class TestModels(pyquoks.test.TestCase):
                 "test": "model_test_data",
             },
         )
-        cls._models_container = _test_utils.TestModelsContainer(
+        cls._container = _test_utils.TestContainer(
             data={
                 "test": "container_test_data",
+                "test_list": [
+                    {
+                        "test": "first_test_data",
+                    },
+                    {
+                        "test": "second_test_data",
+                    },
+                ],
                 "test_model": {
                     "test": "model_test_data",
                 },
             },
         )
-        cls._list_container = _test_utils.TestListContainer(
+        cls._listing = _test_utils.TestListing(
             data=[
                 {
                     "test": "first_test_data",
@@ -48,37 +56,56 @@ class TestModels(pyquoks.test.TestCase):
     def test_container(self) -> None:
         self.assert_equal(
             func_name=self.test_container.__name__,
-            test_data=self._models_container.test,
+            test_data=self._container.test,
             test_expected="container_test_data",
         )
 
         self.assert_type(
             func_name=self.test_container.__name__,
-            test_data=self._models_container.test_model,
+            test_data=self._container.test_model,
             test_type=_test_utils.TestModel,
         )
 
         self.assert_equal(
             func_name=self.test_container.__name__,
-            test_data=self._models_container.test_model.test,
+            test_data=self._container.test_model.test,
             test_expected="model_test_data",
         )
 
         self.assert_type(
             func_name=self.test_container.__name__,
-            test_data=self._list_container.test_models,
+            test_data=self._container.test_list,
             test_type=list,
         )
 
         self.assert_equal(
             func_name=self.test_container.__name__,
-            test_data=self._list_container.test_models[0].test,
+            test_data=self._container.test_list[0].test,
             test_expected="first_test_data",
         )
 
         self.assert_equal(
             func_name=self.test_container.__name__,
-            test_data=self._list_container.test_models[1].test,
+            test_data=self._container.test_list[1].test,
+            test_expected="second_test_data",
+        )
+
+    def test_listing(self) -> None:
+        self.assert_type(
+            func_name=self.test_listing.__name__,
+            test_data=self._listing.test_models,
+            test_type=list,
+        )
+
+        self.assert_equal(
+            func_name=self.test_listing.__name__,
+            test_data=self._listing.test_models[0].test,
+            test_expected="first_test_data",
+        )
+
+        self.assert_equal(
+            func_name=self.test_listing.__name__,
+            test_data=self._listing.test_models[1].test,
             test_expected="second_test_data",
         )
 

@@ -30,14 +30,14 @@ class TestData(pyquoks.test.TestCase):
     def test_data_provider(self) -> None:
         self.assert_type(
             func_name=self.test_data_provider.__name__,
-            test_data=self._data_provider.test_list,
-            test_type=_test_utils.TestListContainer,
+            test_data=self._data_provider.test_container,
+            test_type=_test_utils.TestContainer,
         )
 
         self.assert_type(
             func_name=self.test_data_provider.__name__,
-            test_data=self._data_provider.test_models,
-            test_type=_test_utils.TestModelsContainer,
+            test_data=self._data_provider.test_listing,
+            test_type=_test_utils.TestListing,
         )
 
     def test_assets_provider(self) -> None:
