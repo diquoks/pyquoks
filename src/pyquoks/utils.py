@@ -9,7 +9,7 @@ import psutil
 
 class _HasRequiredAttributes:
     """
-    Assistive class for checking for required attributes
+    Assistive class for checking required attributes
 
     **Required attributes**::
 

@@ -1,9 +1,25 @@
 from __future__ import annotations
 
+import typing
+
 import pyquoks.utils
 
 
-class Model:
+class _HasInitialData:
+    """
+    Assistive class for providing initial data
+
+    Attributes:
+        _data: Initial data that was passed into object
+    """
+
+    _data: typing.Any
+
+    def __init__(self, data: typing.Any) -> None:
+        self._data = data
+
+
+class Model(_HasInitialData):
     """
     Class for storing parameters and models
 
@@ -11,7 +27,7 @@ class Model:
 
         _ATTRIBUTES = {"beatmap_id", "score_id"}
 
-        _OBJECTS = {"scores": ScoreModel}
+        _OBJECTS = {"beatmap": BeatmapModel}
 
     Attributes:
         _ATTRIBUTES: Set of parameters that stored in this model
@@ -26,7 +42,7 @@ class Model:
     _data: dict
 
     def __init__(self, data: dict) -> None:
-        self._data = data
+        super().__init__(data)
 
         if hasattr(self, "_ATTRIBUTES"):
             if isinstance(self._ATTRIBUTES, set):
@@ -46,7 +62,7 @@ class Model:
             self._OBJECTS = None
 
 
-class Container:
+class Container(Model, _HasInitialData):
     """
     Class for storing lists of models and another parameters
 
@@ -74,24 +90,7 @@ class Container:
     _data: dict
 
     def __init__(self, data: dict) -> None:
-        self._data = data
-
-        if hasattr(self, "_ATTRIBUTES"):
-            if isinstance(self._ATTRIBUTES, set):
-                for attribute in self._ATTRIBUTES:
-                    setattr(self, attribute, self._data.get(attribute, None))
-        else:
-            self._ATTRIBUTES = None
-
-        if hasattr(self, "_OBJECTS"):
-            if isinstance(self._OBJECTS, dict):
-                for attribute, object_class in self._OBJECTS.items():
-                    try:
-                        setattr(self, attribute, object_class(self._data.get(attribute)))
-                    except Exception:
-                        setattr(self, attribute, None)
-        else:
-            self._OBJECTS = None
+        super().__init__(data)
 
         if hasattr(self, "_DATA"):
             if isinstance(self._DATA, dict):
@@ -104,7 +103,7 @@ class Container:
             self._DATA = None
 
 
-class Listing:
+class Listing(_HasInitialData):
     """
     Class for storing list of models
 
@@ -122,7 +121,7 @@ class Listing:
     _data: list
 
     def __init__(self, data: list) -> None:
-        self._data = data
+        super().__init__(data)
 
         if hasattr(self, "_DATA"):
             if isinstance(self._DATA, dict):
