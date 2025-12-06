@@ -65,7 +65,7 @@ class TestValues(pyquoks.models.Values):
 
 # region data.py
 
-class DataProvider(pyquoks.data.DataProvider):
+class DataManager(pyquoks.data.DataManager):
     _OBJECTS = {
         "test_container": TestContainer,
         "test_listing": TestListing,
@@ -215,4 +215,4 @@ class DatabaseManager(pyquoks.data.DatabaseManager):
 def raise_test_exception() -> typing.NoReturn:
     raise NotImplementedError
 
-# region
+# endregion

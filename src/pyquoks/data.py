@@ -18,49 +18,6 @@ import pyquoks.utils
 
 # region Providers
 
-class DataProvider(pyquoks.utils._HasRequiredAttributes):
-    """
-    Class for providing data from JSON-like files
-
-    **Required attributes**::
-
-        _OBJECTS = {"users": UsersContainer}
-
-        # Predefined:
-
-        _PATH = pyquoks.utils.get_path("data/")
-
-        _FILENAME = "{0}.json"
-
-    Attributes:
-        _OBJECTS: Dictionary with filenames and containers
-        _PATH: Path to the directory with JSON-like files
-        _FILENAME: Filename of JSON-like files
-    """
-
-    _REQUIRED_ATTRIBUTES = {
-        "_OBJECTS",
-        "_PATH",
-        "_FILENAME",
-    }
-
-    _OBJECTS: dict[str, type]
-
-    _PATH: str = pyquoks.utils.get_path("data/")
-
-    _FILENAME: str = "{0}.json"
-
-    def __init__(self) -> None:
-        self._check_attributes()
-
-        for filename, object_class in self._OBJECTS.items():
-            try:
-                with open(self._PATH + self._FILENAME.format(filename), "rb") as file:
-                    setattr(self, filename, object_class(json.loads(file.read())))
-            except Exception:
-                setattr(self, filename, None)
-
-
 class AssetsProvider(pyquoks.utils._HasRequiredAttributes):
     """
     Class for providing various assets data
@@ -201,9 +158,7 @@ class AssetsProvider(pyquoks.utils._HasRequiredAttributes):
         """
 
         return PIL.Image.open(
-            fp=io.BytesIO(
-                initial_bytes=requests.get(url).content,
-            ),
+            fp=io.BytesIO(requests.get(url).content),
         )
 
 
@@ -360,7 +315,8 @@ class ConfigManager(pyquoks.utils._HasRequiredAttributes):
             for attribute, value in kwargs.items():
                 if attribute not in self._VALUES.keys():
                     raise AttributeError(f"{attribute} is not specified!")
-                elif type(value) is not self._VALUES.get(attribute):
+
+                if type(value) is not self._VALUES.get(attribute):
                     raise AttributeError(
                         f"{attribute} has incorrect type! (must be {self._VALUES.get(attribute).__name__})",
                     )
@@ -385,6 +341,82 @@ class ConfigManager(pyquoks.utils._HasRequiredAttributes):
 
         for attribute, object_class in self._OBJECTS.items():
             setattr(self, attribute, object_class(self))
+
+
+class DataManager(pyquoks.utils._HasRequiredAttributes):
+    """
+    Class for managing data from JSON-like files
+
+    **Required attributes**::
+
+        _OBJECTS = {"users": UsersContainer}
+
+        # Predefined:
+
+        _PATH = pyquoks.utils.get_path("data/")
+
+        _FILENAME = "{0}.json"
+
+    Attributes:
+        _OBJECTS: Dictionary with filenames and containers
+        _PATH: Path to the directory with JSON-like files
+        _FILENAME: Filename of JSON-like files
+    """
+
+    _REQUIRED_ATTRIBUTES = {
+        "_OBJECTS",
+        "_PATH",
+        "_FILENAME",
+    }
+
+    _OBJECTS: dict[str, type]
+
+    _PATH: str = pyquoks.utils.get_path("data/")
+
+    _FILENAME: str = "{0}.json"
+
+    def __init__(self) -> None:
+        self._check_attributes()
+
+        for filename, object_class in self._OBJECTS.items():
+            try:
+                with open(self._PATH + self._FILENAME.format(filename), "rb") as file:
+                    setattr(self, filename, object_class(json.loads(file.read())))
+            except Exception:
+                setattr(self, filename, None)
+
+    def update(self, **kwargs) -> None:
+        """
+        Updates provided attributes in object
+        """
+
+        for attribute, value in kwargs.items():
+            if attribute not in self._OBJECTS.keys():
+                raise AttributeError(f"{attribute} is not specified!")
+
+            object_class = self._OBJECTS.get(attribute)
+
+            try:
+                object_class(value)
+            except Exception:
+                raise AttributeError(
+                    f"{attribute} cannot be converted to {object_class.__name__}!",
+                )
+            else:
+                setattr(self, attribute, object_class(value))
+
+                os.makedirs(
+                    name=self._PATH,
+                    exist_ok=True,
+                )
+
+                with open(self._PATH + self._FILENAME.format(attribute), "w", encoding="utf-8") as file:
+                    json.dump(
+                        value,
+                        fp=file,
+                        ensure_ascii=False,
+                        indent=2,
+                    )
 
 
 class DatabaseManager(pyquoks.utils._HasRequiredAttributes):
@@ -526,7 +558,10 @@ class LoggerService(logging.Logger):
         self.addHandler(self.stream_handler)
 
         if file_handling:
-            os.makedirs(path, exist_ok=True)
+            os.makedirs(
+                name=path,
+                exist_ok=True
+            )
             self._LOG_PATH = path + f"{int(datetime.datetime.now().timestamp())}.{filename}.log"
 
             self.file_handler = logging.FileHandler(
@@ -545,7 +580,7 @@ class LoggerService(logging.Logger):
             self._LOG_PATH = None
 
     @property
-    def file(self) -> typing.BinaryIO | None:
+    def file(self) -> typing.IO | None:
         """
         :return: Opened file-like object of current logs
         """

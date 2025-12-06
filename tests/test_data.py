@@ -15,10 +15,10 @@ class TestData(pyquoks.test.TestCase):
     def setUpClass(cls) -> None:
         super().setUpClass()
 
-        cls._data_provider = _test_utils.DataProvider()
         cls._assets_provider = _test_utils.AssetsProvider()
         cls._strings_provider = _test_utils.StringsProvider()
         cls._config_manager = _test_utils.ConfigManager()
+        cls._data_manager = _test_utils.DataManager()
         cls._database_manager = _test_utils.DatabaseManager()
 
     @classmethod
@@ -27,30 +27,19 @@ class TestData(pyquoks.test.TestCase):
             path=cls._database_manager._PATH,
         )
 
-    def test_data_provider(self) -> None:
-        self.assert_type(
-            func_name=self.test_data_provider.__name__,
-            test_data=self._data_provider.test_container,
-            test_type=_test_utils.TestContainer,
-        )
-
-        self.assert_type(
-            func_name=self.test_data_provider.__name__,
-            test_data=self._data_provider.test_listing,
-            test_type=_test_utils.TestListing,
-        )
-
     def test_assets_provider(self) -> None:
         self.assert_type(
             func_name=self.test_assets_provider.__name__,
             test_data=self._assets_provider.test_images,
             test_type=_test_utils.AssetsProvider.TestImagesDirectory,
+            message="AssetsProvider contains correct object",
         )
 
         self.assert_type(
             func_name=self.test_assets_provider.__name__,
             test_data=self._assets_provider.test_images.test_picture,
             test_type=PIL.Image.Image,
+            message="object in AssetsProvider contains correct object",
         )
 
     def test_strings_provider(self) -> None:
@@ -58,12 +47,14 @@ class TestData(pyquoks.test.TestCase):
             func_name=self.test_strings_provider.__name__,
             test_data=self._strings_provider.test,
             test_type=_test_utils.StringsProvider.TestStrings,
+            message="StringsProvider contains correct object",
         )
 
         self.assert_equal(
             func_name=self.test_strings_provider.__name__,
             test_data=self._strings_provider.test.test_string,
             test_expected="strings_provider_test_data",
+            message="object in StringsProvider contains correct data",
         )
 
     def test_config_manager(self) -> None:
@@ -71,50 +62,95 @@ class TestData(pyquoks.test.TestCase):
             func_name=self.test_config_manager.__name__,
             test_data=self._config_manager.test.test_str,
             test_expected="config_manager_test_data",
+            message="ConfigManager contains correct str data",
         )
 
         self.assert_equal(
             func_name=self.test_config_manager.__name__,
             test_data=self._config_manager.test.test_bool,
             test_expected=False,
+            message="ConfigManager contains correct bool data",
         )
 
         self.assert_equal(
             func_name=self.test_config_manager.__name__,
             test_data=self._config_manager.test.test_int,
             test_expected=16,
+            message="ConfigManager contains correct int data",
         )
 
         self.assert_equal(
             func_name=self.test_config_manager.__name__,
             test_data=self._config_manager.test.test_float,
             test_expected=1.025,
+            message="ConfigManager contains correct float data",
         )
 
         self.assert_equal(
             func_name=self.test_config_manager.__name__,
             test_data=self._config_manager.test.test_dict,
             test_expected={"test": "config_manager_test_data"},
+            message="ConfigManager contains correct dict data",
         )
 
         self.assert_equal(
             func_name=self.test_config_manager.__name__,
             test_data=self._config_manager.test.test_list,
             test_expected=["config_manager_test_data"],
+            message="ConfigManager contains correct list data",
         )
 
         self._config_manager.test.update(
-            test_str="config_manager_new_data"
+            test_str="config_manager_new_data",
         )
 
         self.assert_equal(
             func_name=self.test_config_manager.__name__,
             test_data=self._config_manager.test.test_str,
             test_expected="config_manager_new_data",
+            message="ConfigManager contains correct updated data",
         )
 
         self._config_manager.test.update(
-            test_str="config_manager_test_data"
+            test_str="config_manager_test_data",
+        )
+
+    def test_data_manager(self) -> None:
+        self.assert_type(
+            func_name=self.test_data_manager.__name__,
+            test_data=self._data_manager.test_container,
+            test_type=_test_utils.TestContainer,
+            message="DataManager contains correct object",
+        )
+
+        self.assert_type(
+            func_name=self.test_data_manager.__name__,
+            test_data=self._data_manager.test_listing,
+            test_type=_test_utils.TestListing,
+            message="DataManager contains correct object",
+        )
+
+        self._data_manager.update(
+            test_listing=[
+                {
+                    "test": "list_new_data",
+                },
+            ],
+        )
+
+        self.assert_equal(
+            func_name=self.test_data_manager.__name__,
+            test_data=self._data_manager.test_listing.test_models[0].test,
+            test_expected="list_new_data",
+            message="DataManager contains correct updated data",
+        )
+
+        self._data_manager.update(
+            test_listing=[
+                {
+                    "test": "list_test_data",
+                },
+            ],
         )
 
     def test_database_manager(self) -> None:
@@ -126,6 +162,7 @@ class TestData(pyquoks.test.TestCase):
             func_name=self.test_database_manager.__name__,
             test_data=current_test_data,
             test_type=_test_utils.TestDataModel,
+            message="DatabaseManager creates correct object from added data",
         )
 
         current_test_data = self._database_manager.test.get_test_data(
@@ -136,12 +173,14 @@ class TestData(pyquoks.test.TestCase):
             func_name=self.test_database_manager.__name__,
             test_data=current_test_data,
             test_type=_test_utils.TestDataModel,
+            message="DatabaseManager creates correct object from requested data",
         )
 
         self.assert_equal(
             func_name=self.test_database_manager.__name__,
             test_data=current_test_data.test_data,
             test_expected="database_manager_test_data",
+            message="created object contains correct data",
         )
 
         self._database_manager.close_all()

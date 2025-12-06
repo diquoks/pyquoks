@@ -22,10 +22,7 @@ class TestModels(pyquoks.test.TestCase):
             "test": "container_test_data",
             "test_list": [
                 {
-                    "test": "first_test_data",
-                },
-                {
-                    "test": "second_test_data",
+                    "test": "list_test_data",
                 },
             ],
             "test_model": {
@@ -38,10 +35,7 @@ class TestModels(pyquoks.test.TestCase):
 
         cls._listing_data = [
             {
-                "test": "first_test_data",
-            },
-            {
-                "test": "second_test_data",
+                "test": "list_test_data",
             },
         ]
         cls._listing = _test_utils.TestListing(
@@ -57,12 +51,14 @@ class TestModels(pyquoks.test.TestCase):
             func_name=self.test_model.__name__,
             test_data=self._model._data,
             test_expected=self._model_data,
+            message="correct initial data",
         )
 
         self.assert_equal(
             func_name=self.test_model.__name__,
             test_data=self._model.test,
             test_expected="model_test_data",
+            message="Model contains correct data",
         )
 
     def test_container(self) -> None:
@@ -70,42 +66,49 @@ class TestModels(pyquoks.test.TestCase):
             func_name=self.test_container.__name__,
             test_data=self._container._data,
             test_expected=self._container_data,
+            message="correct initial data",
         )
 
         self.assert_equal(
             func_name=self.test_container.__name__,
             test_data=self._container.test,
             test_expected="container_test_data",
+            message="Container contains correct data",
         )
 
         self.assert_type(
             func_name=self.test_container.__name__,
             test_data=self._container.test_model,
             test_type=_test_utils.TestModel,
+            message="Container contains correct object",
         )
 
         self.assert_equal(
             func_name=self.test_container.__name__,
             test_data=self._container.test_model.test,
             test_expected="model_test_data",
+            message="object in the Container contains correct data",
         )
 
         self.assert_type(
             func_name=self.test_container.__name__,
             test_data=self._container.test_list,
             test_type=list,
+            message="Container contains list",
+        )
+
+        self.assert_type(
+            func_name=self.test_container.__name__,
+            test_data=self._container.test_list[0],
+            test_type=_test_utils.TestModel,
+            message="list contains correct object",
         )
 
         self.assert_equal(
             func_name=self.test_container.__name__,
             test_data=self._container.test_list[0].test,
-            test_expected="first_test_data",
-        )
-
-        self.assert_equal(
-            func_name=self.test_container.__name__,
-            test_data=self._container.test_list[1].test,
-            test_expected="second_test_data",
+            test_expected="list_test_data",
+            message="object in the list contains correct data",
         )
 
     def test_listing(self) -> None:
@@ -113,24 +116,28 @@ class TestModels(pyquoks.test.TestCase):
             func_name=self.test_listing.__name__,
             test_data=self._listing._data,
             test_expected=self._listing_data,
+            message="correct initial data",
         )
 
         self.assert_type(
             func_name=self.test_listing.__name__,
             test_data=self._listing.test_models,
             test_type=list,
+            message="Listing contains list",
+        )
+
+        self.assert_type(
+            func_name=self.test_listing.__name__,
+            test_data=self._listing.test_models[0],
+            test_type=_test_utils.TestModel,
+            message="list contains correct object",
         )
 
         self.assert_equal(
             func_name=self.test_listing.__name__,
             test_data=self._listing.test_models[0].test,
-            test_expected="first_test_data",
-        )
-
-        self.assert_equal(
-            func_name=self.test_listing.__name__,
-            test_data=self._listing.test_models[1].test,
-            test_expected="second_test_data",
+            test_expected="list_test_data",
+            message="object in the list contains correct data",
         )
 
     def test_values(self) -> None:
@@ -138,6 +145,7 @@ class TestModels(pyquoks.test.TestCase):
             func_name=self.test_values.__name__,
             test_data=self._values.test,
             test_expected="values_test_data",
+            message="Values contains correct data",
         )
 
         self._values.update(
@@ -148,4 +156,5 @@ class TestModels(pyquoks.test.TestCase):
             func_name=self.test_values.__name__,
             test_data=self._values.test,
             test_expected="values_new_data",
+            message="Values contains correct edited data",
         )

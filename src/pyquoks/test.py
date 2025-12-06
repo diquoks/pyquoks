@@ -45,10 +45,12 @@ class TestCase(unittest.TestCase, pyquoks.utils._HasRequiredAttributes):
             func_name: str,
             test_data: object,
             test_expected: object,
+            message: str = None,
     ) -> None:
         self._logger.info(
             msg=(
                 f"{self._get_func_name(func_name)}:\n"
+                f"{f"Message: {message}\n" if message else ""}"
                 f"Data: {test_data}\n"
                 f"Expected: {test_expected}\n"
             ),
@@ -58,6 +60,7 @@ class TestCase(unittest.TestCase, pyquoks.utils._HasRequiredAttributes):
             self.assertEqual(
                 first=test_data,
                 second=test_expected,
+                msg=message,
             )
         except Exception as exception:
             self._logger.log_error(
@@ -70,12 +73,14 @@ class TestCase(unittest.TestCase, pyquoks.utils._HasRequiredAttributes):
             func_name: str,
             test_func: typing.Callable,
             test_exception: type[BaseException],
+            message: str = None,
             *args,
             **kwargs,
     ) -> None:
         self._logger.info(
             msg=(
                 f"{self._get_func_name(func_name)}:\n"
+                f"{f"Message: {message}\n" if message else ""}"
                 f"Function: {test_func.__name__}()\n"
                 f"Exception: {test_exception.__name__}\n"
             ),
@@ -99,10 +104,12 @@ class TestCase(unittest.TestCase, pyquoks.utils._HasRequiredAttributes):
             func_name: str,
             test_data: object,
             test_type: type | types.UnionType,
+            message: str = None,
     ) -> None:
         self._logger.info(
             msg=(
                 f"{self._get_func_name(func_name)}:\n"
+                f"{f"Message: {message}\n" if message else ""}"
                 f"Type: {type(test_data).__name__}\n"
                 f"Expected: {test_type.__name__}\n"
             ),
@@ -112,6 +119,7 @@ class TestCase(unittest.TestCase, pyquoks.utils._HasRequiredAttributes):
             self.assertIsInstance(
                 obj=test_data,
                 cls=test_type,
+                msg=message,
             )
         except Exception as exception:
             self._logger.log_error(
