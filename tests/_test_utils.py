@@ -1,79 +1,25 @@
 import typing
 
 import PIL.Image
+import pydantic
 
 import pyquoks
 
 
 # region models.py
 
-class TestModel(pyquoks.models.Model):
-    _ATTRIBUTES = {
-        "test",
-    }
-
+class TestModel(pydantic.BaseModel):
     test: str
 
 
-class TestDataModel(pyquoks.models.Model):
-    _ATTRIBUTES = {
-        "id",
-        "test_data",
-    }
-
+class TestDataModel(pydantic.BaseModel):
     id: int
     test_data: str
-
-
-class TestContainer(pyquoks.models.Container):
-    _ATTRIBUTES = {
-        "test",
-    }
-
-    _OBJECTS = {
-        "test_model": TestModel,
-    }
-
-    _DATA = {
-        "test_list": TestModel,
-    }
-
-    test: str
-    test_list: list[TestModel]
-    test_model: TestModel
-
-
-class TestListing(pyquoks.models.Listing):
-    _DATA = {
-        "test_models": TestModel,
-    }
-
-    test_models: list[TestModel]
-
-
-class TestValues(pyquoks.models.Values):
-    _ATTRIBUTES = {
-        "test",
-    }
-
-    test: str
 
 
 # endregion
 
 # region data.py
-
-class DataManager(pyquoks.data.DataManager):
-    _OBJECTS = {
-        "test_container": TestContainer,
-        "test_listing": TestListing,
-    }
-
-    _PATH = pyquoks.utils.get_path("resources/data/")
-
-    test_container: TestContainer
-    test_listing: TestListing
-
 
 class AssetsProvider(pyquoks.data.AssetsProvider):
     class TestImagesDirectory(pyquoks.data.AssetsProvider.Directory):
@@ -138,6 +84,18 @@ class ConfigManager(pyquoks.data.ConfigManager):
     test: TestConfig
 
 
+class DataManager(pyquoks.data.DataManager):
+    _OBJECTS = {
+        "test_list": list[TestModel],
+        "test_model": TestModel,
+    }
+
+    _PATH = pyquoks.utils.get_path("resources/data/")
+
+    test_list: list[TestModel]
+    test_model: TestModel
+
+
 class DatabaseManager(pyquoks.data.DatabaseManager):
     class TestDatabase(pyquoks.data.DatabaseManager.Database):
         _NAME = "test"
@@ -176,9 +134,7 @@ class DatabaseManager(pyquoks.data.DatabaseManager):
             )
             result = cursor.fetchone()
 
-            return TestDataModel(
-                data=dict(result),
-            )
+            return TestDataModel(**dict(result))
 
         def get_test_data(self, test_data_id: int) -> TestDataModel:
             cursor = self.cursor()
@@ -193,9 +149,7 @@ class DatabaseManager(pyquoks.data.DatabaseManager):
             )
             result = cursor.fetchone()
 
-            return TestDataModel(
-                data=dict(result),
-            )
+            return TestDataModel(**dict(result))
 
     _OBJECTS = {
         "test": TestDatabase,

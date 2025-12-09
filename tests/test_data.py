@@ -116,39 +116,42 @@ class TestData(pyquoks.test.TestCase):
     def test_data_manager(self) -> None:
         self.assert_type(
             func_name=self.test_data_manager.__name__,
-            test_data=self._data_manager.test_container,
-            test_type=_test_utils.TestContainer,
-            message="object in the DataManager",
+            test_data=self._data_manager.test_list,
+            test_type=list,
+            message="list in the DataManager",
         )
 
         self.assert_type(
             func_name=self.test_data_manager.__name__,
-            test_data=self._data_manager.test_listing,
-            test_type=_test_utils.TestListing,
+            test_data=self._data_manager.test_list[0],
+            test_type=_test_utils.TestModel,
+            message="object in the list",
+        )
+
+        self.assert_type(
+            func_name=self.test_data_manager.__name__,
+            test_data=self._data_manager.test_model,
+            test_type=_test_utils.TestModel,
             message="object in the DataManager",
         )
 
         self._data_manager.update(
-            test_listing=[
-                {
-                    "test": "list_new_data",
-                },
-            ],
+            test_model={
+                "test": "model_new_data",
+            },
         )
 
         self.assert_equal(
             func_name=self.test_data_manager.__name__,
-            test_data=self._data_manager.test_listing.test_models[0].test,
-            test_expected="list_new_data",
+            test_data=self._data_manager.test_model,
+            test_expected="model_new_data",
             message="updated data in the DataManager",
         )
 
         self._data_manager.update(
-            test_listing=[
-                {
-                    "test": "list_test_data",
-                },
-            ],
+            test_model={
+                "test": "model_test_data",
+            },
         )
 
     def test_database_manager(self) -> None:

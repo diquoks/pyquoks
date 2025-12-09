@@ -9,6 +9,7 @@ import sys
 import typing
 
 import PIL.Image
+import pydantic
 import requests
 
 import pyquoks.utils
@@ -76,13 +77,13 @@ class AssetsProvider(pyquoks.utils._HasRequiredAttributes):
 
             self._PATH = self._parent._PATH + self._PATH
 
-            for filename in self._ATTRIBUTES:
+            for attribute in self._ATTRIBUTES:
                 try:
-                    setattr(self, filename, self._parent.file_image(
-                        path=self._PATH + self._FILENAME.format(filename),
+                    setattr(self, attribute, self._parent.file_image(
+                        path=self._PATH + self._FILENAME.format(attribute),
                     ))
                 except Exception:
-                    setattr(self, filename, None)
+                    setattr(self, attribute, None)
 
     class Network(pyquoks.utils._HasRequiredAttributes):
         """
@@ -133,8 +134,8 @@ class AssetsProvider(pyquoks.utils._HasRequiredAttributes):
     def __init__(self) -> None:
         self._check_attributes()
 
-        for attribute, object_class in self._OBJECTS.items():
-            setattr(self, attribute, object_class(self))
+        for attribute, child_class in self._OBJECTS.items():
+            setattr(self, attribute, child_class(self))
 
     @staticmethod
     def file_image(path: str) -> PIL.Image.Image:
@@ -190,8 +191,8 @@ class StringsProvider(pyquoks.utils._HasRequiredAttributes):
     def __init__(self) -> None:
         self._check_attributes()
 
-        for attribute, object_class in self._OBJECTS.items():
-            setattr(self, attribute, object_class(self))
+        for attribute, child_class in self._OBJECTS.items():
+            setattr(self, attribute, child_class(self))
 
 
 # endregion
@@ -270,20 +271,20 @@ class ConfigManager(pyquoks.utils._HasRequiredAttributes):
 
             for attribute, object_type in self._VALUES.items():
                 try:
-                    match object_type.__name__:
-                        case str.__name__:
-                            pass
-                        case int.__name__:
-                            setattr(self, attribute, int(getattr(self, attribute)))
-                        case float.__name__:
-                            setattr(self, attribute, float(getattr(self, attribute)))
-                        case bool.__name__:
+                    match object_type():
+                        case bool():
                             if getattr(self, attribute) not in [str(True), str(False)]:
                                 setattr(self, attribute, None)
                                 raise self._incorrect_content_exception
                             else:
                                 setattr(self, attribute, getattr(self, attribute) == str(True))
-                        case dict.__name__ | list.__name__:
+                        case int():
+                            setattr(self, attribute, int(getattr(self, attribute)))
+                        case float():
+                            setattr(self, attribute, float(getattr(self, attribute)))
+                        case str():
+                            pass
+                        case dict() | list():
                             setattr(self, attribute, json.loads(getattr(self, attribute)))
                         case _:
                             raise ValueError(f"{object_type.__name__} type is not supported!")
@@ -337,8 +338,8 @@ class ConfigManager(pyquoks.utils._HasRequiredAttributes):
     def __init__(self) -> None:
         self._check_attributes()
 
-        for attribute, object_class in self._OBJECTS.items():
-            setattr(self, attribute, object_class(self))
+        for attribute, child_class in self._OBJECTS.items():
+            setattr(self, attribute, child_class(self))
 
 
 class DataManager(pyquoks.utils._HasRequiredAttributes):
@@ -347,7 +348,7 @@ class DataManager(pyquoks.utils._HasRequiredAttributes):
 
     **Required attributes**::
 
-        _OBJECTS = {"users": UsersContainer}
+        _OBJECTS = {"users": list[UserModel]}
 
         # Predefined:
 
@@ -356,7 +357,7 @@ class DataManager(pyquoks.utils._HasRequiredAttributes):
         _FILENAME = "{0}.json"
 
     Attributes:
-        _OBJECTS: Dictionary with filenames and containers
+        _OBJECTS: Dictionary with filenames and types of models
         _PATH: Path to the directory with JSON-like files
         _FILENAME: Filename of JSON-like files
     """
@@ -367,7 +368,7 @@ class DataManager(pyquoks.utils._HasRequiredAttributes):
         "_FILENAME",
     }
 
-    _OBJECTS: dict[str, type]
+    _OBJECTS: dict[str, type[pydantic.BaseModel] | list[type[pydantic.BaseModel]]]
 
     _PATH: str = pyquoks.utils.get_path("data/")
 
@@ -376,12 +377,17 @@ class DataManager(pyquoks.utils._HasRequiredAttributes):
     def __init__(self) -> None:
         self._check_attributes()
 
-        for filename, object_class in self._OBJECTS.items():
+        for attribute, object_type in self._OBJECTS.items():
             try:
-                with open(self._PATH + self._FILENAME.format(filename), "rb") as file:
-                    setattr(self, filename, object_class(json.loads(file.read())))
+                with open(self._PATH + self._FILENAME.format(attribute), "rb") as file:
+                    data = json.loads(file.read())
+
+                    if typing.get_origin(object_type) == list:
+                        setattr(self, attribute, [typing.get_args(object_type)[0](**model) for model in data])
+                    else:
+                        setattr(self, attribute, object_type(**data))
             except Exception:
-                setattr(self, filename, None)
+                setattr(self, attribute, None)
 
     def update(self, **kwargs) -> None:
         """
@@ -395,13 +401,19 @@ class DataManager(pyquoks.utils._HasRequiredAttributes):
             object_class = self._OBJECTS.get(attribute)
 
             try:
-                object_class(value)
+                if typing.get_origin(object_class) == list:
+                    [typing.get_args(object_class)[0](**model) for model in value]
+                else:
+                    object_class(**value)
             except Exception:
                 raise AttributeError(
                     f"{attribute} cannot be converted to {object_class.__name__}!",
                 )
             else:
-                setattr(self, attribute, object_class(value))
+                if typing.get_origin(object_class) == list:
+                    setattr(self, attribute, [typing.get_args(object_class)[0](**model) for model in value])
+                else:
+                    setattr(self, attribute, object_class(**value))
 
                 os.makedirs(
                     name=self._PATH,
@@ -510,16 +522,16 @@ class DatabaseManager(pyquoks.utils._HasRequiredAttributes):
             exist_ok=True,
         )
 
-        for attribute, object_class in self._OBJECTS.items():
-            setattr(self, attribute, object_class(self))
+        for attribute, child_class in self._OBJECTS.items():
+            setattr(self, attribute, child_class(self))
 
     def close_all(self) -> None:
         """
         Closes all database connections
         """
 
-        for database in self._OBJECTS.keys():
-            getattr(self, database).close()
+        for attribute in self._OBJECTS.keys():
+            getattr(self, attribute).close()
 
 
 # endregion
