@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 import shutil
 
 import PIL.Image
@@ -32,14 +30,14 @@ class TestData(pyquoks.test.TestCase):
             func_name=self.test_assets_provider.__name__,
             test_data=self._assets_provider.test_images,
             test_type=_test_utils.AssetsProvider.TestImagesDirectory,
-            message="AssetsProvider contains correct object",
+            message="object in the AssetsProvider",
         )
 
         self.assert_type(
             func_name=self.test_assets_provider.__name__,
             test_data=self._assets_provider.test_images.test_picture,
             test_type=PIL.Image.Image,
-            message="object in AssetsProvider contains correct object",
+            message="object in the object",
         )
 
     def test_strings_provider(self) -> None:
@@ -47,14 +45,14 @@ class TestData(pyquoks.test.TestCase):
             func_name=self.test_strings_provider.__name__,
             test_data=self._strings_provider.test,
             test_type=_test_utils.StringsProvider.TestStrings,
-            message="StringsProvider contains correct object",
+            message="object in the StringsProvider",
         )
 
         self.assert_equal(
             func_name=self.test_strings_provider.__name__,
             test_data=self._strings_provider.test.test_string,
             test_expected="strings_provider_test_data",
-            message="object in StringsProvider contains correct data",
+            message="data in the object",
         )
 
     def test_config_manager(self) -> None:
@@ -62,42 +60,42 @@ class TestData(pyquoks.test.TestCase):
             func_name=self.test_config_manager.__name__,
             test_data=self._config_manager.test.test_str,
             test_expected="config_manager_test_data",
-            message="ConfigManager contains correct str data",
+            message="str data in the ConfigManager",
         )
 
         self.assert_equal(
             func_name=self.test_config_manager.__name__,
             test_data=self._config_manager.test.test_bool,
             test_expected=False,
-            message="ConfigManager contains correct bool data",
+            message="bool data in the ConfigManager",
         )
 
         self.assert_equal(
             func_name=self.test_config_manager.__name__,
             test_data=self._config_manager.test.test_int,
             test_expected=16,
-            message="ConfigManager contains correct int data",
+            message="int data in the ConfigManager",
         )
 
         self.assert_equal(
             func_name=self.test_config_manager.__name__,
             test_data=self._config_manager.test.test_float,
             test_expected=1.025,
-            message="ConfigManager contains correct float data",
+            message="float data in the ConfigManager",
         )
 
         self.assert_equal(
             func_name=self.test_config_manager.__name__,
             test_data=self._config_manager.test.test_dict,
             test_expected={"test": "config_manager_test_data"},
-            message="ConfigManager contains correct dict data",
+            message="dict data in the ConfigManager",
         )
 
         self.assert_equal(
             func_name=self.test_config_manager.__name__,
             test_data=self._config_manager.test.test_list,
             test_expected=["config_manager_test_data"],
-            message="ConfigManager contains correct list data",
+            message="list data in the ConfigManager",
         )
 
         self._config_manager.test.update(
@@ -108,7 +106,7 @@ class TestData(pyquoks.test.TestCase):
             func_name=self.test_config_manager.__name__,
             test_data=self._config_manager.test.test_str,
             test_expected="config_manager_new_data",
-            message="ConfigManager contains correct updated data",
+            message="updated data in the ConfigManager",
         )
 
         self._config_manager.test.update(
@@ -120,14 +118,14 @@ class TestData(pyquoks.test.TestCase):
             func_name=self.test_data_manager.__name__,
             test_data=self._data_manager.test_container,
             test_type=_test_utils.TestContainer,
-            message="DataManager contains correct object",
+            message="object in the DataManager",
         )
 
         self.assert_type(
             func_name=self.test_data_manager.__name__,
             test_data=self._data_manager.test_listing,
             test_type=_test_utils.TestListing,
-            message="DataManager contains correct object",
+            message="object in the DataManager",
         )
 
         self._data_manager.update(
@@ -142,7 +140,7 @@ class TestData(pyquoks.test.TestCase):
             func_name=self.test_data_manager.__name__,
             test_data=self._data_manager.test_listing.test_models[0].test,
             test_expected="list_new_data",
-            message="DataManager contains correct updated data",
+            message="updated data in the DataManager",
         )
 
         self._data_manager.update(
@@ -162,7 +160,7 @@ class TestData(pyquoks.test.TestCase):
             func_name=self.test_database_manager.__name__,
             test_data=current_test_data,
             test_type=_test_utils.TestDataModel,
-            message="DatabaseManager creates correct object from added data",
+            message="DatabaseManager creates object from added data",
         )
 
         current_test_data = self._database_manager.test.get_test_data(
@@ -173,14 +171,14 @@ class TestData(pyquoks.test.TestCase):
             func_name=self.test_database_manager.__name__,
             test_data=current_test_data,
             test_type=_test_utils.TestDataModel,
-            message="DatabaseManager creates correct object from requested data",
+            message="DatabaseManager creates object from requested data",
         )
 
         self.assert_equal(
             func_name=self.test_database_manager.__name__,
             test_data=current_test_data.test_data,
             test_expected="database_manager_test_data",
-            message="created object contains correct data",
+            message="data in the created object",
         )
 
         self._database_manager.close_all()
