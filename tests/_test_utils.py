@@ -1,3 +1,4 @@
+import textwrap
 import typing
 
 import PIL.Image
@@ -100,23 +101,27 @@ class DatabaseManager(pyquoks.data.DatabaseManager):
     class TestDatabase(pyquoks.data.DatabaseManager.Database):
         _NAME = "test"
 
-        _SQL = f"""
-        CREATE TABLE IF NOT EXISTS {_NAME} (
-        id INTEGER PRIMARY KEY NOT NULL,
-        test_data TEXT NOT NULL
+        _SQL = textwrap.dedent(
+            f"""\
+            CREATE TABLE IF NOT EXISTS {_NAME} (
+            id INTEGER PRIMARY KEY NOT NULL,
+            test_data TEXT NOT NULL
+            )
+            """,
         )
-        """
 
         def add_test_data(self, test_data: str) -> TestDataModel:
             cursor = self.cursor()
 
             cursor.execute(
-                f"""
-                INSERT INTO {self._NAME} (
-                test_data
-                )
-                VALUES (?)
-                """,
+                textwrap.dedent(
+                    f"""\
+                    INSERT INTO {self._NAME} (
+                    test_data
+                    )
+                    VALUES (?)
+                    """,
+                ),
                 (
                     test_data,
                 ),
@@ -125,9 +130,11 @@ class DatabaseManager(pyquoks.data.DatabaseManager):
             self.commit()
 
             cursor.execute(
-                f"""
-                SELECT * FROM {self._NAME} WHERE rowid == ?
-                """,
+                textwrap.dedent(
+                    f"""\
+                    SELECT * FROM {self._NAME} WHERE rowid == ?
+                    """,
+                ),
                 (
                     cursor.lastrowid,
                 ),
@@ -140,9 +147,11 @@ class DatabaseManager(pyquoks.data.DatabaseManager):
             cursor = self.cursor()
 
             cursor.execute(
-                f"""
-                SELECT * FROM {self._NAME} WHERE id == ?
-                """,
+                textwrap.dedent(
+                    f"""\
+                    SELECT * FROM {self._NAME} WHERE id == ?
+                    """,
+                ),
                 (
                     test_data_id,
                 ),
