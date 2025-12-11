@@ -312,12 +312,16 @@ class ConfigManager(pyquoks.utils._HasRequiredAttributes):
             """
 
             for attribute, value in kwargs.items():
+
                 if attribute not in self._VALUES.keys():
                     raise AttributeError(f"{attribute} is not specified!")
 
                 object_type = self._VALUES.get(attribute)
 
-                if type(value) is not object_type:
+                if not isinstance(
+                        value,
+                        typing.get_origin(object_type) if typing.get_origin(object_type) else object_type,
+                ):
                     raise AttributeError(
                         f"{attribute} has incorrect type! (must be {object_type.__name__})",
                     )
@@ -397,12 +401,17 @@ class DataManager(pyquoks.utils._HasRequiredAttributes):
         """
 
         for attribute, value in kwargs.items():
+            value: pydantic.BaseModel | list[pydantic.BaseModel]
+
             if attribute not in self._OBJECTS.keys():
                 raise AttributeError(f"{attribute} is not specified!")
 
             object_type = self._OBJECTS.get(attribute)
 
-            if type(value) is not object_type:
+            if not isinstance(
+                    value,
+                    typing.get_origin(object_type) if typing.get_origin(object_type) else object_type,
+            ):
                 raise AttributeError(
                     f"{attribute} has incorrect type! (must be {object_type.__name__})",
                 )
