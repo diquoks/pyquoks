@@ -315,9 +315,11 @@ class ConfigManager(pyquoks.utils._HasRequiredAttributes):
                 if attribute not in self._VALUES.keys():
                     raise AttributeError(f"{attribute} is not specified!")
 
-                if type(value) is not self._VALUES.get(attribute):
+                object_type = self._VALUES.get(attribute)
+
+                if type(value) is not object_type:
                     raise AttributeError(
-                        f"{attribute} has incorrect type! (must be {self._VALUES.get(attribute).__name__})",
+                        f"{attribute} has incorrect type! (must be {object_type.__name__})",
                     )
 
                 setattr(self, attribute, value)
@@ -398,35 +400,29 @@ class DataManager(pyquoks.utils._HasRequiredAttributes):
             if attribute not in self._OBJECTS.keys():
                 raise AttributeError(f"{attribute} is not specified!")
 
-            object_class = self._OBJECTS.get(attribute)
+            object_type = self._OBJECTS.get(attribute)
 
-            try:
-                if typing.get_origin(object_class) == list:
-                    [typing.get_args(object_class)[0](**model) for model in value]
-                else:
-                    object_class(**value)
-            except Exception:
+            if type(value) is not object_type:
                 raise AttributeError(
-                    f"{attribute} cannot be converted to {object_class.__name__}!",
-                )
-            else:
-                if typing.get_origin(object_class) == list:
-                    setattr(self, attribute, [typing.get_args(object_class)[0](**model) for model in value])
-                else:
-                    setattr(self, attribute, object_class(**value))
-
-                os.makedirs(
-                    name=self._PATH,
-                    exist_ok=True,
+                    f"{attribute} has incorrect type! (must be {object_type.__name__})",
                 )
 
-                with open(self._PATH + self._FILENAME.format(attribute), "w", encoding="utf-8") as file:
-                    json.dump(
-                        value,
-                        fp=file,
-                        ensure_ascii=False,
-                        indent=2,
-                    )
+            setattr(self, attribute, value)
+
+            os.makedirs(
+                name=self._PATH,
+                exist_ok=True,
+            )
+
+            with open(self._PATH + self._FILENAME.format(attribute), "w", encoding="utf-8") as file:
+                json.dump(
+                    [model.model_dump() for model in value] if typing.get_origin(
+                        object_type,
+                    ) == list else value.model_dump(),
+                    fp=file,
+                    ensure_ascii=False,
+                    indent=2,
+                )
 
 
 class DatabaseManager(pyquoks.utils._HasRequiredAttributes):
