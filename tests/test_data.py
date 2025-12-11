@@ -154,6 +154,29 @@ class TestData(pyquoks.test.TestCase):
             )
         )
 
+        self._data_manager.update(
+            test_list=[
+                _test_utils.TestModel(
+                    test="list_new_data",
+                ),
+            ],
+        )
+
+        self.assert_equal(
+            func_name=self.test_data_manager.__name__,
+            test_data=self._data_manager.test_list[0].test,
+            test_expected="list_new_data",
+            message="updated data in the DataManager",
+        )
+
+        self._data_manager.update(
+            test_list=[
+                _test_utils.TestModel(
+                    test="list_test_data",
+                ),
+            ],
+        )
+
     def test_database_manager(self) -> None:
         current_test_data = self._database_manager.test.add_test_data(
             test_data="database_manager_test_data",
