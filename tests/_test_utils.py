@@ -34,10 +34,6 @@ class AssetsProvider(pyquoks.data.AssetsProvider):
 
         test_picture: PIL.Image.Image
 
-    _OBJECTS = {
-        "test_images": TestImagesDirectory,
-    }
-
     _PATH = pyquoks.utils.get_path("resources/assets/")
 
     test_images: TestImagesDirectory
@@ -48,10 +44,6 @@ class StringsProvider(pyquoks.data.StringsProvider):
         @property
         def test_string(self) -> str:
             return "strings_provider_test_data"
-
-    _OBJECTS = {
-        "test": TestStrings,
-    }
 
     test: TestStrings
 
@@ -76,21 +68,12 @@ class ConfigManager(pyquoks.data.ConfigManager):
         test_dict: dict
         test_list: list
 
-    _OBJECTS = {
-        "test": TestConfig,
-    }
-
     _PATH = pyquoks.utils.get_path("resources/config_manager_test.ini")
 
     test: TestConfig
 
 
 class DataManager(pyquoks.data.DataManager):
-    _OBJECTS = {
-        "test_list": list[TestModel],
-        "test_model": TestModel,
-    }
-
     _PATH = pyquoks.utils.get_path("resources/data/")
 
     test_list: list[TestModel]
@@ -159,10 +142,6 @@ class DatabaseManager(pyquoks.data.DatabaseManager):
             result = cursor.fetchone()
 
             return TestDataModel(**dict(result))
-
-    _OBJECTS = {
-        "test": TestDatabase,
-    }
 
     _PATH = pyquoks.utils.get_path("resources/db/")
 

@@ -57,7 +57,7 @@ class _HasRequiredAttributes:
 
     **Required attributes**::
 
-        _REQUIRED_ATTRIBUTES = {"_ATTRIBUTES", "_OBJECTS"}
+        _REQUIRED_ATTRIBUTES = {"_ATTRIBUTES", "_PATH"}
 
     Attributes:
         _REQUIRED_ATTRIBUTES: Set of required attributes in the class

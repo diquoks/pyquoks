@@ -23,14 +23,11 @@ class AssetsProvider(pyquoks.utils._HasRequiredAttributes):
 
     **Required attributes**::
 
-        _OBJECTS = {"images": ImagesDirectory, "example": ExampleNetwork}
-
         # Predefined:
 
         _PATH = pyquoks.utils.get_path("assets/")
 
     Attributes:
-        _OBJECTS: Dictionary with names of attributes and child objects
         _PATH: Path to the directory with assets folders
     """
 
@@ -123,19 +120,21 @@ class AssetsProvider(pyquoks.utils._HasRequiredAttributes):
                     setattr(self, attribute, None)
 
     _REQUIRED_ATTRIBUTES = {
-        "_OBJECTS",
         "_PATH",
     }
-
-    _OBJECTS: dict[str, type]
 
     _PATH: str = pyquoks.utils.get_path("assets/")
 
     def __init__(self) -> None:
         self._check_attributes()
 
-        for attribute, child_class in self._OBJECTS.items():
-            setattr(self, attribute, child_class(self))
+        for attribute, child_class in self.__class__.__annotations__.items():
+            if issubclass(child_class, AssetsProvider.Directory | AssetsProvider.Network):
+                setattr(self, attribute, child_class(self))
+            else:
+                raise AttributeError(
+                    f"{attribute} has incorrect type! (must be subclass of {AssetsProvider.Directory.__name__} or {AssetsProvider.Network.__name__})",
+                )
 
     @staticmethod
     def file_image(path: str) -> PIL.Image.Image:
@@ -161,16 +160,9 @@ class AssetsProvider(pyquoks.utils._HasRequiredAttributes):
         )
 
 
-class StringsProvider(pyquoks.utils._HasRequiredAttributes):
+class StringsProvider:
     """
     Class for providing various strings data
-
-    **Required attributes**::
-
-        _OBJECTS = {"menu": MenuStrings}
-
-    Attributes:
-        _OBJECTS: Dictionary with names of attributes and child objects
     """
 
     class Strings:
@@ -182,17 +174,14 @@ class StringsProvider(pyquoks.utils._HasRequiredAttributes):
         def __init__(self, parent: StringsProvider) -> None:
             ...  # TODO
 
-    _REQUIRED_ATTRIBUTES = {
-        "_OBJECTS",
-    }
-
-    _OBJECTS: dict[str, type]
-
     def __init__(self) -> None:
-        self._check_attributes()
-
-        for attribute, child_class in self._OBJECTS.items():
-            setattr(self, attribute, child_class(self))
+        for attribute, child_class in self.__class__.__annotations__.items():
+            if issubclass(child_class, StringsProvider.Strings):
+                setattr(self, attribute, child_class(self))
+            else:
+                raise AttributeError(
+                    f"{attribute} has incorrect type! (must be subclass of {StringsProvider.Strings.__name__})",
+                )
 
 
 # endregion
@@ -205,14 +194,11 @@ class ConfigManager(pyquoks.utils._HasRequiredAttributes):
 
     **Required attributes**::
 
-        _OBJECTS = {"settings": SettingsConfig}
-
         # Predefined
 
         _PATH = pyquoks.utils.get_path("config.ini")
 
     Attributes:
-        _OBJECTS: Dictionary with names of attributes and child objects
         _PATH: Path to the configuration file
     """
 
@@ -333,19 +319,21 @@ class ConfigManager(pyquoks.utils._HasRequiredAttributes):
                     self._config.write(file)
 
     _REQUIRED_ATTRIBUTES = {
-        "_OBJECTS",
         "_PATH",
     }
-
-    _OBJECTS: dict[str, type]
 
     _PATH: str = pyquoks.utils.get_path("config.ini")
 
     def __init__(self) -> None:
         self._check_attributes()
 
-        for attribute, child_class in self._OBJECTS.items():
-            setattr(self, attribute, child_class(self))
+        for attribute, child_class in self.__class__.__annotations__.items():
+            if issubclass(child_class, ConfigManager.Config):
+                setattr(self, attribute, child_class(self))
+            else:
+                raise AttributeError(
+                    f"{attribute} has incorrect type! (must be subclass of {ConfigManager.Config.__name__})",
+                )
 
 
 class DataManager(pyquoks.utils._HasRequiredAttributes):
@@ -354,8 +342,6 @@ class DataManager(pyquoks.utils._HasRequiredAttributes):
 
     **Required attributes**::
 
-        _OBJECTS = {"users": list[UserModel]}
-
         # Predefined:
 
         _PATH = pyquoks.utils.get_path("data/")
@@ -363,18 +349,14 @@ class DataManager(pyquoks.utils._HasRequiredAttributes):
         _FILENAME = "{0}.json"
 
     Attributes:
-        _OBJECTS: Dictionary with filenames and types of models
         _PATH: Path to the directory with JSON-like files
         _FILENAME: Filename of JSON-like files
     """
 
     _REQUIRED_ATTRIBUTES = {
-        "_OBJECTS",
         "_PATH",
         "_FILENAME",
     }
-
-    _OBJECTS: dict[str, type[pydantic.BaseModel] | list[type[pydantic.BaseModel]]]
 
     _PATH: str = pyquoks.utils.get_path("data/")
 
@@ -383,17 +365,28 @@ class DataManager(pyquoks.utils._HasRequiredAttributes):
     def __init__(self) -> None:
         self._check_attributes()
 
-        for attribute, object_type in self._OBJECTS.items():
-            try:
-                with open(self._PATH + self._FILENAME.format(attribute), "rb") as file:
-                    data = json.loads(file.read())
+        for attribute, object_type in self.__class__.__annotations__.items():
+            if issubclass(
+                    typing.get_args(object_type)[0],
+                    pydantic.BaseModel,
+            ) if typing.get_origin(object_type) else issubclass(
+                object_type,
+                pydantic.BaseModel,
+            ):
+                try:
+                    with open(self._PATH + self._FILENAME.format(attribute), "rb") as file:
+                        data = json.loads(file.read())
 
-                    if typing.get_origin(object_type) == list:
-                        setattr(self, attribute, [typing.get_args(object_type)[0](**model) for model in data])
-                    else:
-                        setattr(self, attribute, object_type(**data))
-            except Exception:
-                setattr(self, attribute, None)
+                        if typing.get_origin(object_type) == list:
+                            setattr(self, attribute, [typing.get_args(object_type)[0](**model) for model in data])
+                        else:
+                            setattr(self, attribute, object_type(**data))
+                except Exception:
+                    setattr(self, attribute, None)
+            else:
+                raise AttributeError(
+                    f"{attribute} has incorrect type! (must be subclass of {pydantic.BaseModel.__name__} or {list.__name__} of its subclasses)",
+                )
 
     def update(self, **kwargs) -> None:
         """
@@ -403,10 +396,10 @@ class DataManager(pyquoks.utils._HasRequiredAttributes):
         for attribute, value in kwargs.items():
             value: pydantic.BaseModel | list[pydantic.BaseModel]
 
-            if attribute not in self._OBJECTS.keys():
+            if attribute not in self.__class__.__annotations__.keys():
                 raise AttributeError(f"{attribute} is not specified!")
 
-            object_type = self._OBJECTS.get(attribute)
+            object_type = self.__class__.__annotations__.get(attribute)
 
             if not isinstance(
                     value,
@@ -440,14 +433,11 @@ class DatabaseManager(pyquoks.utils._HasRequiredAttributes):
 
     **Required attributes**::
 
-        _OBJECTS = {"users": UsersDatabase}
-
         # Predefined
 
         _PATH = pyquoks.utils.get_path("db/")
 
     Attributes:
-        _OBJECTS: Dictionary with names of attributes and child objects
         _PATH: Path to the directory with databases
     """
 
@@ -511,11 +501,8 @@ class DatabaseManager(pyquoks.utils._HasRequiredAttributes):
             self.commit()
 
     _REQUIRED_ATTRIBUTES = {
-        "_OBJECTS",
         "_PATH",
     }
-
-    _OBJECTS: dict[str, type]
 
     _PATH: str = pyquoks.utils.get_path("db/")
 
@@ -527,15 +514,20 @@ class DatabaseManager(pyquoks.utils._HasRequiredAttributes):
             exist_ok=True,
         )
 
-        for attribute, child_class in self._OBJECTS.items():
-            setattr(self, attribute, child_class(self))
+        for attribute, child_class in self.__class__.__annotations__.items():
+            if issubclass(child_class, DatabaseManager.Database):
+                setattr(self, attribute, child_class(self))
+            else:
+                raise AttributeError(
+                    f"{attribute} has incorrect type! (must be subclass of {DatabaseManager.Database.__name__})",
+                )
 
     def close_all(self) -> None:
         """
         Closes all database connections
         """
 
-        for attribute in self._OBJECTS.keys():
+        for attribute in self.__class__.__annotations__.keys():
             getattr(self, attribute).close()
 
 
