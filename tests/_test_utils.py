@@ -1,3 +1,4 @@
+import textwrap
 import typing
 
 import PIL.Image
@@ -33,10 +34,6 @@ class AssetsProvider(pyquoks.data.AssetsProvider):
 
         test_picture: PIL.Image.Image
 
-    _OBJECTS = {
-        "test_images": TestImagesDirectory,
-    }
-
     _PATH = pyquoks.utils.get_path("resources/assets/")
 
     test_images: TestImagesDirectory
@@ -47,10 +44,6 @@ class StringsProvider(pyquoks.data.StringsProvider):
         @property
         def test_string(self) -> str:
             return "strings_provider_test_data"
-
-    _OBJECTS = {
-        "test": TestStrings,
-    }
 
     test: TestStrings
 
@@ -75,21 +68,12 @@ class ConfigManager(pyquoks.data.ConfigManager):
         test_dict: dict
         test_list: list
 
-    _OBJECTS = {
-        "test": TestConfig,
-    }
-
     _PATH = pyquoks.utils.get_path("resources/config_manager_test.ini")
 
     test: TestConfig
 
 
 class DataManager(pyquoks.data.DataManager):
-    _OBJECTS = {
-        "test_list": list[TestModel],
-        "test_model": TestModel,
-    }
-
     _PATH = pyquoks.utils.get_path("resources/data/")
 
     test_list: list[TestModel]
@@ -100,23 +84,27 @@ class DatabaseManager(pyquoks.data.DatabaseManager):
     class TestDatabase(pyquoks.data.DatabaseManager.Database):
         _NAME = "test"
 
-        _SQL = f"""
-        CREATE TABLE IF NOT EXISTS {_NAME} (
-        id INTEGER PRIMARY KEY NOT NULL,
-        test_data TEXT NOT NULL
+        _SQL = textwrap.dedent(
+            f"""\
+            CREATE TABLE IF NOT EXISTS {_NAME} (
+            id INTEGER PRIMARY KEY NOT NULL,
+            test_data TEXT NOT NULL
+            )
+            """,
         )
-        """
 
         def add_test_data(self, test_data: str) -> TestDataModel:
             cursor = self.cursor()
 
             cursor.execute(
-                f"""
-                INSERT INTO {self._NAME} (
-                test_data
-                )
-                VALUES (?)
-                """,
+                textwrap.dedent(
+                    f"""\
+                    INSERT INTO {self._NAME} (
+                    test_data
+                    )
+                    VALUES (?)
+                    """,
+                ),
                 (
                     test_data,
                 ),
@@ -125,9 +113,11 @@ class DatabaseManager(pyquoks.data.DatabaseManager):
             self.commit()
 
             cursor.execute(
-                f"""
-                SELECT * FROM {self._NAME} WHERE rowid == ?
-                """,
+                textwrap.dedent(
+                    f"""\
+                    SELECT * FROM {self._NAME} WHERE rowid == ?
+                    """,
+                ),
                 (
                     cursor.lastrowid,
                 ),
@@ -140,9 +130,11 @@ class DatabaseManager(pyquoks.data.DatabaseManager):
             cursor = self.cursor()
 
             cursor.execute(
-                f"""
-                SELECT * FROM {self._NAME} WHERE id == ?
-                """,
+                textwrap.dedent(
+                    f"""\
+                    SELECT * FROM {self._NAME} WHERE id == ?
+                    """,
+                ),
                 (
                     test_data_id,
                 ),
@@ -150,10 +142,6 @@ class DatabaseManager(pyquoks.data.DatabaseManager):
             result = cursor.fetchone()
 
             return TestDataModel(**dict(result))
-
-    _OBJECTS = {
-        "test": TestDatabase,
-    }
 
     _PATH = pyquoks.utils.get_path("resources/db/")
 
