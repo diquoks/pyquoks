@@ -2,22 +2,22 @@ import shutil
 
 import PIL.Image
 
-import _test_utils
-import pyquoks
+import src.pyquoks
+import tests._test_utils
 
 
-class TestData(pyquoks.test.TestCase):
+class TestData(src.pyquoks.test.TestCase):
     _MODULE_NAME = __name__
 
     @classmethod
     def setUpClass(cls) -> None:
         super().setUpClass()
 
-        cls._assets = _test_utils.AssetsProvider()
-        cls._strings = _test_utils.StringsProvider()
-        cls._config = _test_utils.ConfigManager()
-        cls._data = _test_utils.DataManager()
-        cls._database = _test_utils.DatabaseManager()
+        cls._assets = tests._test_utils.AssetsProvider()
+        cls._strings = tests._test_utils.StringsProvider()
+        cls._config = tests._test_utils.ConfigManager()
+        cls._data = tests._test_utils.DataManager()
+        cls._database = tests._test_utils.DatabaseManager()
 
     @classmethod
     def tearDownClass(cls) -> None:
@@ -29,7 +29,7 @@ class TestData(pyquoks.test.TestCase):
         self.assert_type(
             func_name=self.test_assets_provider.__name__,
             test_data=self._assets.test_images,
-            test_type=_test_utils.AssetsProvider.TestImagesDirectory,
+            test_type=tests._test_utils.AssetsProvider.TestImagesDirectory,
             message="object in the AssetsProvider",
         )
 
@@ -44,7 +44,7 @@ class TestData(pyquoks.test.TestCase):
         self.assert_type(
             func_name=self.test_strings_provider.__name__,
             test_data=self._strings.test,
-            test_type=_test_utils.StringsProvider.TestStrings,
+            test_type=tests._test_utils.StringsProvider.TestStrings,
             message="object in the StringsProvider",
         )
 
@@ -124,19 +124,19 @@ class TestData(pyquoks.test.TestCase):
         self.assert_type(
             func_name=self.test_data_manager.__name__,
             test_data=self._data.test_list[0],
-            test_type=_test_utils.TestModel,
+            test_type=tests._test_utils.TestModel,
             message="object in the list",
         )
 
         self.assert_type(
             func_name=self.test_data_manager.__name__,
             test_data=self._data.test_model,
-            test_type=_test_utils.TestModel,
+            test_type=tests._test_utils.TestModel,
             message="object in the DataManager",
         )
 
         self._data.update(
-            test_model=_test_utils.TestModel(
+            test_model=tests._test_utils.TestModel(
                 test="model_new_data",
             ),
         )
@@ -149,14 +149,14 @@ class TestData(pyquoks.test.TestCase):
         )
 
         self._data.update(
-            test_model=_test_utils.TestModel(
+            test_model=tests._test_utils.TestModel(
                 test="model_test_data",
             )
         )
 
         self._data.update(
             test_list=[
-                _test_utils.TestModel(
+                tests._test_utils.TestModel(
                     test="list_new_data",
                 ),
             ],
@@ -171,7 +171,7 @@ class TestData(pyquoks.test.TestCase):
 
         self._data.update(
             test_list=[
-                _test_utils.TestModel(
+                tests._test_utils.TestModel(
                     test="list_test_data",
                 ),
             ],
@@ -185,7 +185,7 @@ class TestData(pyquoks.test.TestCase):
         self.assert_type(
             func_name=self.test_database_manager.__name__,
             test_data=current_test_data,
-            test_type=_test_utils.TestDataModel,
+            test_type=tests._test_utils.TestDataModel,
             message="DatabaseManager creates object from added data",
         )
 
@@ -196,7 +196,7 @@ class TestData(pyquoks.test.TestCase):
         self.assert_type(
             func_name=self.test_database_manager.__name__,
             test_data=current_test_data,
-            test_type=_test_utils.TestDataModel,
+            test_type=tests._test_utils.TestDataModel,
             message="DatabaseManager creates object from requested data",
         )
 

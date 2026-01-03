@@ -3,10 +3,10 @@ import typing
 import flask
 import waitress
 
-import pyquoks.utils
+from . import utils
 
 
-class LocalhostFlask(flask.Flask, pyquoks.utils._HasRequiredAttributes):
+class LocalhostFlask(flask.Flask, utils._HasRequiredAttributes):
     """
     Class for creating a simple localhost server
 

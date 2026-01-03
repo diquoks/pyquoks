@@ -2,11 +2,11 @@ import types
 import typing
 import unittest
 
-import pyquoks.data
-import pyquoks.utils
+from . import data
+from . import utils
 
 
-class TestCase(unittest.TestCase, pyquoks.utils._HasRequiredAttributes):
+class TestCase(unittest.TestCase, utils._HasRequiredAttributes):
     """
     Class for performing unit testing
 
@@ -31,8 +31,9 @@ class TestCase(unittest.TestCase, pyquoks.utils._HasRequiredAttributes):
 
     @classmethod
     def setUpClass(cls) -> None:
-        cls._logger = pyquoks.data.LoggerService(
-            filename=__name__,
+        cls._logger = data.LoggerService(
+            filename=cls._MODULE_NAME,
+            path=utils.get_path("tests/logs/"),
         )
 
     def _get_func_name(self, func_name: str) -> str:
