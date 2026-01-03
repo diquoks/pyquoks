@@ -4,7 +4,7 @@ import typing
 import PIL.Image
 import pydantic
 
-import pyquoks
+import src.pyquoks
 
 
 # region models.py
@@ -22,8 +22,8 @@ class TestDataModel(pydantic.BaseModel):
 
 # region data.py
 
-class AssetsProvider(pyquoks.data.AssetsProvider):
-    class TestImagesDirectory(pyquoks.data.AssetsProvider.Directory):
+class AssetsProvider(src.pyquoks.data.AssetsProvider):
+    class TestImagesDirectory(src.pyquoks.data.AssetsProvider.Directory):
         _ATTRIBUTES = {
             "test_picture",
         }
@@ -34,13 +34,13 @@ class AssetsProvider(pyquoks.data.AssetsProvider):
 
         test_picture: PIL.Image.Image
 
-    _PATH = pyquoks.utils.get_path("resources/assets/")
+    _PATH = src.pyquoks.utils.get_path("tests/resources/assets/")
 
     test_images: TestImagesDirectory
 
 
-class StringsProvider(pyquoks.data.StringsProvider):
-    class TestStrings(pyquoks.data.StringsProvider.Strings):
+class StringsProvider(src.pyquoks.data.StringsProvider):
+    class TestStrings(src.pyquoks.data.StringsProvider.Strings):
         @property
         def test_string(self) -> str:
             return "strings_provider_test_data"
@@ -48,8 +48,8 @@ class StringsProvider(pyquoks.data.StringsProvider):
     test: TestStrings
 
 
-class ConfigManager(pyquoks.data.ConfigManager):
-    class TestConfig(pyquoks.data.ConfigManager.Config):
+class ConfigManager(src.pyquoks.data.ConfigManager):
+    class TestConfig(src.pyquoks.data.ConfigManager.Config):
         _SECTION = "Test"
 
         _VALUES = {
@@ -68,20 +68,20 @@ class ConfigManager(pyquoks.data.ConfigManager):
         test_dict: dict
         test_list: list
 
-    _PATH = pyquoks.utils.get_path("resources/config_manager_test.ini")
+    _PATH = src.pyquoks.utils.get_path("tests/resources/config_manager_test.ini")
 
     test: TestConfig
 
 
-class DataManager(pyquoks.data.DataManager):
-    _PATH = pyquoks.utils.get_path("resources/data/")
+class DataManager(src.pyquoks.data.DataManager):
+    _PATH = src.pyquoks.utils.get_path("tests/resources/data/")
 
     test_list: list[TestModel]
     test_model: TestModel
 
 
-class DatabaseManager(pyquoks.data.DatabaseManager):
-    class TestDatabase(pyquoks.data.DatabaseManager.Database):
+class DatabaseManager(src.pyquoks.data.DatabaseManager):
+    class TestDatabase(src.pyquoks.data.DatabaseManager.Database):
         _NAME = "test"
 
         _SQL = textwrap.dedent(
@@ -143,7 +143,7 @@ class DatabaseManager(pyquoks.data.DatabaseManager):
 
             return TestDataModel(**dict(result))
 
-    _PATH = pyquoks.utils.get_path("resources/db/")
+    _PATH = src.pyquoks.utils.get_path("tests/resources/db/")
 
     test: TestDatabase
 

@@ -12,12 +12,12 @@ import PIL.Image
 import pydantic
 import requests
 
-import pyquoks.utils
+from . import utils
 
 
 # region Providers
 
-class AssetsProvider(pyquoks.utils._HasRequiredAttributes):
+class AssetsProvider(utils._HasRequiredAttributes):
     """
     Class for providing various assets data
 
@@ -31,7 +31,7 @@ class AssetsProvider(pyquoks.utils._HasRequiredAttributes):
         _PATH: Path to the directory with assets folders
     """
 
-    class Directory(pyquoks.utils._HasRequiredAttributes):
+    class Directory(utils._HasRequiredAttributes):
         """
         Class that represents a directory with various assets
 
@@ -82,7 +82,7 @@ class AssetsProvider(pyquoks.utils._HasRequiredAttributes):
                 except Exception:
                     setattr(self, attribute, None)
 
-    class Network(pyquoks.utils._HasRequiredAttributes):
+    class Network(utils._HasRequiredAttributes):
         """
         Class that represents a set of images obtained from a network
 
@@ -123,7 +123,7 @@ class AssetsProvider(pyquoks.utils._HasRequiredAttributes):
         "_PATH",
     }
 
-    _PATH: str = pyquoks.utils.get_path("assets/")
+    _PATH: str = utils.get_path("assets/")
 
     def __init__(self) -> None:
         self._check_attributes()
@@ -188,7 +188,7 @@ class StringsProvider:
 
 # region Managers
 
-class ConfigManager(pyquoks.utils._HasRequiredAttributes):
+class ConfigManager(utils._HasRequiredAttributes):
     """
     Class for managing data in configuration file
 
@@ -202,7 +202,7 @@ class ConfigManager(pyquoks.utils._HasRequiredAttributes):
         _PATH: Path to the configuration file
     """
 
-    class Config(pyquoks.utils._HasRequiredAttributes):
+    class Config(utils._HasRequiredAttributes):
         """
         Class that represents a section in configuration file
 
@@ -322,7 +322,7 @@ class ConfigManager(pyquoks.utils._HasRequiredAttributes):
         "_PATH",
     }
 
-    _PATH: str = pyquoks.utils.get_path("config.ini")
+    _PATH: str = utils.get_path("config.ini")
 
     def __init__(self) -> None:
         self._check_attributes()
@@ -336,7 +336,7 @@ class ConfigManager(pyquoks.utils._HasRequiredAttributes):
                 )
 
 
-class DataManager(pyquoks.utils._HasRequiredAttributes):
+class DataManager(utils._HasRequiredAttributes):
     """
     Class for managing data from JSON-like files
 
@@ -358,7 +358,7 @@ class DataManager(pyquoks.utils._HasRequiredAttributes):
         "_FILENAME",
     }
 
-    _PATH: str = pyquoks.utils.get_path("data/")
+    _PATH: str = utils.get_path("data/")
 
     _FILENAME: str = "{0}.json"
 
@@ -427,7 +427,7 @@ class DataManager(pyquoks.utils._HasRequiredAttributes):
                 )
 
 
-class DatabaseManager(pyquoks.utils._HasRequiredAttributes):
+class DatabaseManager(utils._HasRequiredAttributes):
     """
     Class for managing database connections
 
@@ -441,7 +441,7 @@ class DatabaseManager(pyquoks.utils._HasRequiredAttributes):
         _PATH: Path to the directory with databases
     """
 
-    class Database(sqlite3.Connection, pyquoks.utils._HasRequiredAttributes):
+    class Database(sqlite3.Connection, utils._HasRequiredAttributes):
         """
         Class that represents a database connection
 
@@ -504,7 +504,7 @@ class DatabaseManager(pyquoks.utils._HasRequiredAttributes):
         "_PATH",
     }
 
-    _PATH: str = pyquoks.utils.get_path("db/")
+    _PATH: str = utils.get_path("db/")
 
     def __init__(self) -> None:
         self._check_attributes()
@@ -550,7 +550,7 @@ class LoggerService(logging.Logger):
             filename: str,
             level: int = logging.NOTSET,
             file_handling: bool = True,
-            path: str = pyquoks.utils.get_path("logs/"),
+            path: str = utils.get_path("logs/"),
     ) -> None:
         super().__init__(filename, level)
 
