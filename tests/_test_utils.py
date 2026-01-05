@@ -39,6 +39,10 @@ class AssetsProvider(src.pyquoks.data.AssetsProvider):
     test_images: TestImagesDirectory
 
 
+class EnvironmentProvider(src.pyquoks.data.EnvironmentProvider):
+    TEST_VAR: str | None
+
+
 class StringsProvider(src.pyquoks.data.StringsProvider):
     class TestStrings(src.pyquoks.data.StringsProvider.Strings):
         @property
