@@ -1,3 +1,4 @@
+import os
 import shutil
 
 import PIL.Image
@@ -14,6 +15,7 @@ class TestData(src.pyquoks.test.TestCase):
         super().setUpClass()
 
         cls._assets = tests._test_utils.AssetsProvider()
+        cls._environment = tests._test_utils.EnvironmentProvider()
         cls._strings = tests._test_utils.StringsProvider()
         cls._config = tests._test_utils.ConfigManager()
         cls._data = tests._test_utils.DataManager()
@@ -38,6 +40,25 @@ class TestData(src.pyquoks.test.TestCase):
             test_data=self._assets.test_images.test_picture,
             test_type=PIL.Image.Image,
             message="object in the object",
+        )
+
+    def test_environment_provider(self) -> None:
+        self.assert_equal(
+            func_name=self.test_environment_provider.__name__,
+            test_data=self._environment.TEST_VAR,
+            test_expected=None,
+            message="data in the EnvironmentProvider",
+        )
+
+        os.environ["TEST_VAR"] = "environment_provider_test_data"
+
+        self._environment.load_variables()
+
+        self.assert_equal(
+            func_name=self.test_environment_provider.__name__,
+            test_data=self._environment.TEST_VAR,
+            test_expected="environment_provider_test_data",
+            message="updated data in the EnvironmentProvider",
         )
 
     def test_strings_provider(self) -> None:

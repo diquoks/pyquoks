@@ -5,9 +5,9 @@ import tests._test_utils
 class TestTest(src.pyquoks.test.TestCase):
     _MODULE_NAME = __name__
 
-    def test_assert_is(self) -> None:
+    def test_assert_equal(self) -> None:
         self.assert_equal(
-            func_name=self.test_assert_is.__name__,
+            func_name=self.test_assert_equal.__name__,
             test_data="test_data",
             test_expected="test_data",
             message="assert data",
