@@ -121,17 +121,62 @@ class TestData(src.pyquoks.test.TestCase):
 
         self._config.test.update(
             test_str="config_manager_new_data",
+            test_bool=True,
+            test_int=32,
+            test_float=1.075,
+            test_dict={"test": "config_manager_new_data"},
+            test_list=["config_manager_new_data"],
         )
 
         self.assert_equal(
             func_name=self.test_config_manager.__name__,
             test_data=self._config.test.test_str,
             test_expected="config_manager_new_data",
-            message="updated data in the ConfigManager",
+            message="updated str data in the ConfigManager",
+        )
+
+        self.assert_equal(
+            func_name=self.test_config_manager.__name__,
+            test_data=self._config.test.test_bool,
+            test_expected=True,
+            message="updated bool data in the ConfigManager",
+        )
+
+        self.assert_equal(
+            func_name=self.test_config_manager.__name__,
+            test_data=self._config.test.test_int,
+            test_expected=32,
+            message="updated int data in the ConfigManager",
+        )
+
+        self.assert_equal(
+            func_name=self.test_config_manager.__name__,
+            test_data=self._config.test.test_float,
+            test_expected=1.075,
+            message="updated float data in the ConfigManager",
+        )
+
+        self.assert_equal(
+            func_name=self.test_config_manager.__name__,
+            test_data=self._config.test.test_dict,
+            test_expected={"test": "config_manager_new_data"},
+            message="updated dict data in the ConfigManager",
+        )
+
+        self.assert_equal(
+            func_name=self.test_config_manager.__name__,
+            test_data=self._config.test.test_list,
+            test_expected=["config_manager_new_data"],
+            message="updated list data in the ConfigManager",
         )
 
         self._config.test.update(
             test_str="config_manager_test_data",
+            test_bool=False,
+            test_int=16,
+            test_float=1.025,
+            test_dict={"test": "config_manager_test_data"},
+            test_list=["config_manager_test_data"],
         )
 
     def test_data_manager(self) -> None:
