@@ -331,7 +331,14 @@ class ConfigManager(utils._HasRequiredAttributes):
 
                 setattr(self, attribute, value)
 
-                self._config.set(self._SECTION, attribute, value)
+                match object_type():
+                    case bool() | int() | float() | str():
+                        self._config.set(self._SECTION, attribute, str(value))
+                    case dict() | list():
+                        self._config.set(self._SECTION, attribute, json.dumps(value))
+                    case _:
+                        raise ValueError(f"{object_type.__name__} type is not supported!")
+
                 with open(self._parent._PATH, "w", encoding="utf-8") as file:
                     self._config.write(file)
 
