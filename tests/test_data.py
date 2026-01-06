@@ -23,6 +23,8 @@ class TestData(src.pyquoks.test.TestCase):
 
     @classmethod
     def tearDownClass(cls) -> None:
+        super().tearDownClass()
+
         shutil.rmtree(
             path=cls._database._PATH,
         )

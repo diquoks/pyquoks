@@ -31,6 +31,8 @@ class TestCase(unittest.TestCase, utils._HasRequiredAttributes):
 
     @classmethod
     def setUpClass(cls) -> None:
+        super().setUpClass()
+
         cls._logger = data.LoggerService(
             filename=cls._MODULE_NAME,
             path=utils.get_path("tests/logs/"),
