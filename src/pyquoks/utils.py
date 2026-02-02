@@ -38,11 +38,14 @@ def get_path(relative_path: str, use_meipass: bool = False) -> str:
     return os.path.join(base_path, relative_path)
 
 
-def get_process_created_datetime(pid: int = os.getpid()) -> datetime.datetime:
+def get_process_created_datetime(pid: int = None) -> datetime.datetime:
     """
     :param pid: ID of the process
     :return: Datetime when the process was created
     """
+
+    if pid is None:
+        pid = os.getpid()
 
     process = psutil.Process(pid)
 
