@@ -2,7 +2,6 @@ __all__ = [
     "managers",
     "providers",
     "services",
-    "managers",
     "test",
     "utils",
 ]
