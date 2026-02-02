@@ -7,7 +7,7 @@ authors = [
 ]
 license = { text = "MIT" }
 readme = "README.md"
-requires-python = ">=3.14"
+requires-python = ">=3.14,<4.0"
 dependencies = [
     "pillow (>=12.1.0)",
     "psutil (>=7.2.2)",
@@ -15,13 +15,16 @@ dependencies = [
     "requests (>=2.32.5)"
 ]
 
+[dependency-groups]
+dev = [
+    "pytest (>=9.0.2)",
+    "twine (>=6.2.0)",
+    "poetry (>=2.3.2)"
+]
+
+[tool.pytest]
+pythonpath = ["src"]
 
 [build-system]
 requires = ["poetry-core (>=2.0.0, <3.0.0)"]
 build-backend = "poetry.core.masonry.api"
-
-[dependency-groups]
-dev = [
-    "pytest (>=9.0.2)",
-    "twine (>=6.2.0)"
-]
