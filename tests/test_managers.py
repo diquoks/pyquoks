@@ -1,25 +1,20 @@
-import os
 import shutil
 
-import PIL.Image
+import managers
+import models
+import pyquoks
 
-import src.pyquoks
-import tests._test_utils
 
-
-class TestData(src.pyquoks.test.TestCase):
+class TestManagers(pyquoks.test.TestCase):
     _MODULE_NAME = __name__
 
     @classmethod
     def setUpClass(cls) -> None:
         super().setUpClass()
 
-        cls._assets = tests._test_utils.AssetsProvider()
-        cls._environment = tests._test_utils.EnvironmentProvider()
-        cls._strings = tests._test_utils.StringsProvider()
-        cls._config = tests._test_utils.ConfigManager()
-        cls._data = tests._test_utils.DataManager()
-        cls._database = tests._test_utils.DatabaseManager()
+        cls._config = managers.config.ConfigManager()
+        cls._data = managers.data.DataManager()
+        cls._database = managers.database.DatabaseManager()
 
     @classmethod
     def tearDownClass(cls) -> None:
@@ -27,55 +22,6 @@ class TestData(src.pyquoks.test.TestCase):
 
         shutil.rmtree(
             path=cls._database._PATH,
-        )
-
-    def test_assets_provider(self) -> None:
-        self.assert_type(
-            func_name=self.test_assets_provider.__name__,
-            test_data=self._assets.test_images,
-            test_type=tests._test_utils.AssetsProvider.TestImagesDirectory,
-            message="object in the AssetsProvider",
-        )
-
-        self.assert_type(
-            func_name=self.test_assets_provider.__name__,
-            test_data=self._assets.test_images.test_picture,
-            test_type=PIL.Image.Image,
-            message="object in the object",
-        )
-
-    def test_environment_provider(self) -> None:
-        self.assert_equal(
-            func_name=self.test_environment_provider.__name__,
-            test_data=self._environment.TEST_VAR,
-            test_expected=None,
-            message="data in the EnvironmentProvider",
-        )
-
-        os.environ["TEST_VAR"] = "environment_provider_test_data"
-
-        self._environment.load_variables()
-
-        self.assert_equal(
-            func_name=self.test_environment_provider.__name__,
-            test_data=self._environment.TEST_VAR,
-            test_expected="environment_provider_test_data",
-            message="updated data in the EnvironmentProvider",
-        )
-
-    def test_strings_provider(self) -> None:
-        self.assert_type(
-            func_name=self.test_strings_provider.__name__,
-            test_data=self._strings.test,
-            test_type=tests._test_utils.StringsProvider.TestStrings,
-            message="object in the StringsProvider",
-        )
-
-        self.assert_equal(
-            func_name=self.test_strings_provider.__name__,
-            test_data=self._strings.test.test_string,
-            test_expected="strings_provider_test_data",
-            message="data in the object",
         )
 
     def test_config_manager(self) -> None:
@@ -192,19 +138,19 @@ class TestData(src.pyquoks.test.TestCase):
         self.assert_type(
             func_name=self.test_data_manager.__name__,
             test_data=self._data.test_list[0],
-            test_type=tests._test_utils.TestModel,
+            test_type=models.TestModel,
             message="object in the list",
         )
 
         self.assert_type(
             func_name=self.test_data_manager.__name__,
             test_data=self._data.test_model,
-            test_type=tests._test_utils.TestModel,
+            test_type=models.TestModel,
             message="object in the DataManager",
         )
 
         self._data.update(
-            test_model=tests._test_utils.TestModel(
+            test_model=models.TestModel(
                 test="model_new_data",
             ),
         )
@@ -217,14 +163,14 @@ class TestData(src.pyquoks.test.TestCase):
         )
 
         self._data.update(
-            test_model=tests._test_utils.TestModel(
+            test_model=models.TestModel(
                 test="model_test_data",
             )
         )
 
         self._data.update(
             test_list=[
-                tests._test_utils.TestModel(
+                models.TestModel(
                     test="list_new_data",
                 ),
             ],
@@ -239,7 +185,7 @@ class TestData(src.pyquoks.test.TestCase):
 
         self._data.update(
             test_list=[
-                tests._test_utils.TestModel(
+                models.TestModel(
                     test="list_test_data",
                 ),
             ],
@@ -253,7 +199,7 @@ class TestData(src.pyquoks.test.TestCase):
         self.assert_type(
             func_name=self.test_database_manager.__name__,
             test_data=current_test_data,
-            test_type=tests._test_utils.TestDataModel,
+            test_type=models.TestDataModel,
             message="DatabaseManager creates object from added data",
         )
 
@@ -264,7 +210,7 @@ class TestData(src.pyquoks.test.TestCase):
         self.assert_type(
             func_name=self.test_database_manager.__name__,
             test_data=current_test_data,
-            test_type=tests._test_utils.TestDataModel,
+            test_type=models.TestDataModel,
             message="DatabaseManager creates object from requested data",
         )
 

@@ -1,8 +1,8 @@
-import src.pyquoks
-import tests._test_utils
+import pyquoks
+import utils
 
 
-class TestTest(src.pyquoks.test.TestCase):
+class TestTest(pyquoks.test.TestCase):
     _MODULE_NAME = __name__
 
     def test_assert_equal(self) -> None:
@@ -16,7 +16,7 @@ class TestTest(src.pyquoks.test.TestCase):
     def test_assert_raises(self) -> None:
         self.assert_raises(
             func_name=self.test_assert_raises.__name__,
-            test_func=tests._test_utils.raise_test_exception,
+            test_func=utils.raise_test_exception,
             test_exception=NotImplementedError,
             message="assert raised exception",
         )
