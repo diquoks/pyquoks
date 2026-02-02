@@ -29,13 +29,9 @@ class AssetsProvider(pyquoks.utils._HasRequiredAttributes):
     def __init__(self) -> None:
         self._check_attributes()
 
-        for attribute, child_class in self.__class__.__annotations__.items():
-            if issubclass(child_class, Directory | Network):
-                setattr(self, attribute, child_class(self))
-            else:
-                raise AttributeError(
-                    f"{attribute} has incorrect type! (must be subclass of {Directory.__name__} or {Network.__name__})",
-                )
+        for attribute, object_type in self.__class__.__annotations__.items():
+            if issubclass(object_type, Directory | Network):
+                setattr(self, attribute, object_type(self))
 
 
 class Directory(pyquoks.utils._HasRequiredAttributes):

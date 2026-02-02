@@ -32,21 +32,18 @@ class DatabaseManager(pyquoks.utils._HasRequiredAttributes):
             exist_ok=True,
         )
 
-        for attribute, child_class in self.__class__.__annotations__.items():
-            if issubclass(child_class, Database):
-                setattr(self, attribute, child_class(self))
-            else:
-                raise AttributeError(
-                    f"{attribute} has incorrect type! (must be subclass of {Database.__name__})",
-                )
+        for attribute, object_type in self.__class__.__annotations__.items():
+            if issubclass(object_type, Database):
+                setattr(self, attribute, object_type(self))
 
     def close_all(self) -> None:
         """
         Closes all database connections
         """
 
-        for attribute in self.__class__.__annotations__.keys():
-            getattr(self, attribute).close()
+        for attribute, object_type in self.__class__.__annotations__.items():
+            if issubclass(object_type, Database):
+                getattr(self, attribute).close()
 
 
 class Database(sqlite3.Connection, pyquoks.utils._HasRequiredAttributes):

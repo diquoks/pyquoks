@@ -54,10 +54,6 @@ class DataManager(pyquoks.utils._HasRequiredAttributes):
                             setattr(self, attribute, object_type(**data))
                 except Exception:
                     setattr(self, attribute, None)
-            else:
-                raise AttributeError(
-                    f"{attribute} has incorrect type! (must be subclass of {pydantic.BaseModel.__name__} or {list.__name__} of its subclasses)",
-                )
 
     def update(self, **kwargs) -> None:
         """
