@@ -1,6 +1,6 @@
 import textwrap
 
-import models
+import tests.models
 import pyquoks
 
 
@@ -22,7 +22,7 @@ class TestDatabase(pyquoks.managers.database.Database):
         """,
     )
 
-    def add_test_data(self, test_data: str) -> models.TestDataModel:
+    def add_test_data(self, test_data: str) -> tests.models.TestDataModel:
         cursor = self.cursor()
 
         cursor.execute(
@@ -53,9 +53,9 @@ class TestDatabase(pyquoks.managers.database.Database):
         )
         result = cursor.fetchone()
 
-        return models.TestDataModel(**dict(result))
+        return tests.models.TestDataModel(**dict(result))
 
-    def get_test_data(self, test_data_id: int) -> models.TestDataModel:
+    def get_test_data(self, test_data_id: int) -> tests.models.TestDataModel:
         cursor = self.cursor()
 
         cursor.execute(
@@ -70,4 +70,4 @@ class TestDatabase(pyquoks.managers.database.Database):
         )
         result = cursor.fetchone()
 
-        return models.TestDataModel(**dict(result))
+        return tests.models.TestDataModel(**dict(result))
