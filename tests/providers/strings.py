@@ -1,4 +1,4 @@
-import pyquoks
+import pyquoks.providers.strings
 
 
 class StringsProvider(pyquoks.providers.strings.StringsProvider):

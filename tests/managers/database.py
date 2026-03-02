@@ -1,7 +1,6 @@
-import textwrap
-
-import tests.models
-import pyquoks
+import pyquoks.managers.database
+import pyquoks.utils
+from .. import models
 
 
 class DatabaseManager(pyquoks.managers.database.DatabaseManager):
@@ -13,8 +12,8 @@ class DatabaseManager(pyquoks.managers.database.DatabaseManager):
 class TestDatabase(pyquoks.managers.database.Database):
     _NAME = "test"
 
-    _SQL = textwrap.dedent(
-        f"""\
+    _SQL = pyquoks.utils.format_multiline_string(
+        f"""
         CREATE TABLE IF NOT EXISTS {_NAME} (
         id INTEGER PRIMARY KEY NOT NULL,
         test_data TEXT NOT NULL
@@ -22,12 +21,12 @@ class TestDatabase(pyquoks.managers.database.Database):
         """,
     )
 
-    def add_test_data(self, test_data: str) -> tests.models.TestDataModel:
+    def add_test_data(self, test_data: str) -> models.TestDataModel:
         cursor = self.cursor()
 
         cursor.execute(
-            textwrap.dedent(
-                f"""\
+            pyquoks.utils.format_multiline_string(
+                f"""
                 INSERT INTO {self._NAME} (
                 test_data
                 )
@@ -42,8 +41,8 @@ class TestDatabase(pyquoks.managers.database.Database):
         self.commit()
 
         cursor.execute(
-            textwrap.dedent(
-                f"""\
+            pyquoks.utils.format_multiline_string(
+                f"""
                 SELECT * FROM {self._NAME} WHERE rowid == ?
                 """,
             ),
@@ -53,14 +52,14 @@ class TestDatabase(pyquoks.managers.database.Database):
         )
         result = cursor.fetchone()
 
-        return tests.models.TestDataModel(**dict(result))
+        return models.TestDataModel(**dict(result))
 
-    def get_test_data(self, test_data_id: int) -> tests.models.TestDataModel:
+    def get_test_data(self, test_data_id: int) -> models.TestDataModel:
         cursor = self.cursor()
 
         cursor.execute(
-            textwrap.dedent(
-                f"""\
+            pyquoks.utils.format_multiline_string(
+                f"""
                 SELECT * FROM {self._NAME} WHERE id == ?
                 """,
             ),
@@ -70,4 +69,4 @@ class TestDatabase(pyquoks.managers.database.Database):
         )
         result = cursor.fetchone()
 
-        return tests.models.TestDataModel(**dict(result))
+        return models.TestDataModel(**dict(result))

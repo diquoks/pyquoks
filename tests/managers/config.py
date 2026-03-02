@@ -1,4 +1,6 @@
-import pyquoks
+# noinspection PyUnusedImports
+import pyquoks.managers.config
+import pyquoks.utils
 
 
 class ConfigManager(pyquoks.managers.config.ConfigManager):
@@ -9,15 +11,6 @@ class ConfigManager(pyquoks.managers.config.ConfigManager):
 
 class TestConfig(pyquoks.managers.config.Config):
     _SECTION = "Test"
-
-    _VALUES = {
-        "test_str": str,
-        "test_bool": bool,
-        "test_int": int,
-        "test_float": float,
-        "test_dict": dict,
-        "test_list": list,
-    }
 
     test_str: str
     test_bool: bool

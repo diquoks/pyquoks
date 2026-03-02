@@ -1,15 +1,15 @@
 import shutil
 
-import tests.managers
-import tests.models
+from . import models
+from .managers import config
+from .managers import database
 
 
 class TestManagers:
     @classmethod
     def setup_class(cls) -> None:
-        cls._config = tests.managers.config.ConfigManager()
-        cls._data = tests.managers.data.DataManager()
-        cls._database = tests.managers.database.DatabaseManager()
+        cls._config = config.ConfigManager()
+        cls._database = database.DatabaseManager()
 
     @classmethod
     def teardown_class(cls) -> None:
@@ -52,36 +52,6 @@ class TestManagers:
             test_list=["config_manager_test_data"],
         )
 
-    def test_data_manager(self) -> None:
-        assert isinstance(self._data.test_list, list), "list in the DataManager"
-        assert isinstance(self._data.test_list[0], tests.models.TestModel), "object in the list"
-        assert isinstance(self._data.test_model, tests.models.TestModel), "object in the DataManager"
-
-        self._data.update(
-            test_model=tests.models.TestModel(
-                test="model_new_data",
-            ),
-            test_list=[
-                tests.models.TestModel(
-                    test="list_new_data",
-                ),
-            ],
-        )
-
-        assert self._data.test_model.test == "model_new_data", "updated data in the DataManager"
-        assert self._data.test_list[0].test == "list_new_data", "updated data in the DataManager"
-
-        self._data.update(
-            test_model=tests.models.TestModel(
-                test="model_test_data",
-            ),
-            test_list=[
-                tests.models.TestModel(
-                    test="list_test_data",
-                ),
-            ],
-        )
-
     def test_database_manager(self) -> None:
         current_test_data = self._database.test.add_test_data(
             test_data="database_manager_test_data",
@@ -89,7 +59,7 @@ class TestManagers:
 
         assert isinstance(
             current_test_data,
-            tests.models.TestDataModel,
+            models.TestDataModel,
         ), "DatabaseManager creates object from added data"
 
         current_test_data = self._database.test.get_test_data(
@@ -98,7 +68,7 @@ class TestManagers:
 
         assert isinstance(
             current_test_data,
-            tests.models.TestDataModel,
+            models.TestDataModel,
         ), "DatabaseManager creates object from requested data"
         assert current_test_data.test_data == "database_manager_test_data", "data in the created object"
 

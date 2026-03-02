@@ -3,8 +3,18 @@ import os
 import platform
 import subprocess
 import sys
+import textwrap
 
 import psutil
+
+
+def format_multiline_string(string: str) -> str:
+    """
+    :param string: Multiline string to format
+    :return: Formatted multiline string
+    """
+
+    return textwrap.dedent(string).strip()
 
 
 def check_connection() -> bool:

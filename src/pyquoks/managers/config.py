@@ -2,10 +2,10 @@ import configparser
 import json
 import typing
 
-import pyquoks.utils
+from .. import utils
 
 
-class ConfigManager(pyquoks.utils._HasRequiredAttributes):
+class ConfigManager(utils._HasRequiredAttributes):
     """
     Class for managing data in configuration file
 
@@ -23,7 +23,7 @@ class ConfigManager(pyquoks.utils._HasRequiredAttributes):
         "_PATH",
     }
 
-    _PATH: str = pyquoks.utils.get_path("config.ini")
+    _PATH: str = utils.get_path("config.ini")
 
     def __init__(self) -> None:
         self._check_attributes()
@@ -33,7 +33,7 @@ class ConfigManager(pyquoks.utils._HasRequiredAttributes):
                 setattr(self, attribute, object_type(self))
 
 
-class Config(pyquoks.utils._HasRequiredAttributes):
+class Config(utils._HasRequiredAttributes):
     """
     Class that represents a section in configuration file
 
@@ -41,22 +41,16 @@ class Config(pyquoks.utils._HasRequiredAttributes):
 
         _SECTION = "Settings"
 
-        _VALUES = {"version": str, "beta": bool}
-
     Attributes:
         _SECTION: Name of the section in configuration file
-        _VALUES: Dictionary with settings and their types
         _parent: Parent object
     """
 
     _REQUIRED_ATTRIBUTES = {
         "_SECTION",
-        "_VALUES",
     }
 
     _SECTION: str
-
-    _VALUES: dict[str, type]
 
     _incorrect_content_exception = configparser.ParsingError(
         source="configuration file is filled incorrectly",
@@ -75,7 +69,7 @@ class Config(pyquoks.utils._HasRequiredAttributes):
         if not self._config.has_section(self._SECTION):
             self._config.add_section(self._SECTION)
 
-        for attribute, object_type in self._VALUES.items():
+        for attribute, object_type in self.__class__.__annotations__.items():
             try:
                 setattr(self, attribute, self._config.get(self._SECTION, attribute))
             except Exception:
@@ -83,7 +77,7 @@ class Config(pyquoks.utils._HasRequiredAttributes):
                 with open(self._parent._PATH, "w", encoding="utf-8") as file:
                     self._config.write(file)
 
-        for attribute, object_type in self._VALUES.items():
+        for attribute, object_type in self.__class__.__annotations__.items():
             try:
                 match object_type():
                     case bool():
@@ -115,7 +109,7 @@ class Config(pyquoks.utils._HasRequiredAttributes):
 
         try:
             return {
-                attribute: getattr(self, attribute) for attribute in self._VALUES.keys()
+                attribute: getattr(self, attribute) for attribute in self.__class__.__annotations__.keys()
             }
         except Exception:
             return None
@@ -127,10 +121,10 @@ class Config(pyquoks.utils._HasRequiredAttributes):
 
         for attribute, value in kwargs.items():
 
-            if attribute not in self._VALUES.keys():
+            if attribute not in self.__class__.__annotations__.keys():
                 raise AttributeError(f"{attribute} is not specified!")
 
-            object_type = self._VALUES.get(attribute)
+            object_type = self.__class__.__annotations__.get(attribute)
 
             if not isinstance(
                     value,

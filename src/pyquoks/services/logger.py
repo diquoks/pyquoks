@@ -4,7 +4,7 @@ import os
 import sys
 import typing
 
-import pyquoks.utils
+from .. import utils
 
 
 class LoggerService(logging.Logger):
@@ -22,7 +22,7 @@ class LoggerService(logging.Logger):
             filename: str,
             level: int = logging.NOTSET,
             file_handling: bool = True,
-            path: str = pyquoks.utils.get_path("logs/"),
+            path: str = utils.get_path("logs/"),
     ) -> None:
         super().__init__(filename, level)
 
@@ -69,7 +69,7 @@ class LoggerService(logging.Logger):
         else:
             return None
 
-    def log_error(self, exception: Exception, raise_again: bool = False) -> None:
+    def log_exception(self, exception: Exception, raise_again: bool = False) -> None:
         """
         Logs an exception with detailed traceback
 

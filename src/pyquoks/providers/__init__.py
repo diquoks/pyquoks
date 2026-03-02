@@ -3,7 +3,3 @@ __all__ = [
     "environment",
     "strings",
 ]
-
-from . import assets
-from . import environment
-from . import strings
