@@ -14,10 +14,10 @@ class TestDatabase(pyquoks.managers.database.Database):
 
     _SQL = pyquoks.utils.format_multiline_string(
         f"""
-        CREATE TABLE IF NOT EXISTS {_NAME} (
-        id INTEGER PRIMARY KEY NOT NULL,
-        test_data TEXT NOT NULL
-        )
+            CREATE TABLE IF NOT EXISTS {_NAME} (
+            id INTEGER PRIMARY KEY NOT NULL,
+            test_data TEXT NOT NULL
+            )
         """,
     )
 
@@ -27,10 +27,10 @@ class TestDatabase(pyquoks.managers.database.Database):
         cursor.execute(
             pyquoks.utils.format_multiline_string(
                 f"""
-                INSERT INTO {self._NAME} (
-                test_data
-                )
-                VALUES (?)
+                    INSERT INTO {self._NAME} (
+                    test_data
+                    )
+                    VALUES (?)
                 """,
             ),
             (
@@ -43,7 +43,7 @@ class TestDatabase(pyquoks.managers.database.Database):
         cursor.execute(
             pyquoks.utils.format_multiline_string(
                 f"""
-                SELECT * FROM {self._NAME} WHERE rowid == ?
+                    SELECT * FROM {self._NAME} WHERE rowid == ?
                 """,
             ),
             (
@@ -60,7 +60,7 @@ class TestDatabase(pyquoks.managers.database.Database):
         cursor.execute(
             pyquoks.utils.format_multiline_string(
                 f"""
-                SELECT * FROM {self._NAME} WHERE id == ?
+                    SELECT * FROM {self._NAME} WHERE id == ?
                 """,
             ),
             (
