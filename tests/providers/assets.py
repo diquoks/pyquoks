@@ -1,6 +1,8 @@
 import PIL.Image
 
-import pyquoks
+# noinspection PyUnusedImports
+import pyquoks.providers.assets
+import pyquoks.utils
 
 
 class AssetsProvider(pyquoks.providers.assets.AssetsProvider):
@@ -10,12 +12,10 @@ class AssetsProvider(pyquoks.providers.assets.AssetsProvider):
 
 
 class TestImagesDirectory(pyquoks.providers.assets.Directory):
-    _ATTRIBUTES = {
-        "test_picture",
-    }
-
     _PATH = "test_images/"
 
-    _FILENAME = "{0}.png"
+    _FILENAMES = {
+        "test_picture.png",
+    }
 
     test_picture: PIL.Image.Image

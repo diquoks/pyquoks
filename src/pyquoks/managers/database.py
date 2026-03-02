@@ -1,10 +1,10 @@
 import os
 import sqlite3
 
-import pyquoks.utils
+from .. import utils
 
 
-class DatabaseManager(pyquoks.utils._HasRequiredAttributes):
+class DatabaseManager(utils._HasRequiredAttributes):
     """
     Class for managing database connections
 
@@ -22,7 +22,7 @@ class DatabaseManager(pyquoks.utils._HasRequiredAttributes):
         "_PATH",
     }
 
-    _PATH: str = pyquoks.utils.get_path("db/")
+    _PATH: str = utils.get_path("db/")
 
     def __init__(self) -> None:
         self._check_attributes()
@@ -46,7 +46,7 @@ class DatabaseManager(pyquoks.utils._HasRequiredAttributes):
                 getattr(self, attribute).close()
 
 
-class Database(sqlite3.Connection, pyquoks.utils._HasRequiredAttributes):
+class Database(sqlite3.Connection, utils._HasRequiredAttributes):
     """
     Class that represents a database connection
 

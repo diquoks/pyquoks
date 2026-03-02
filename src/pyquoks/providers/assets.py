@@ -3,16 +3,16 @@ import io
 import PIL.Image
 import requests
 
-import pyquoks.utils
+from .. import utils
 
 
-class AssetsProvider(pyquoks.utils._HasRequiredAttributes):
+class AssetsProvider(utils._HasRequiredAttributes):
     """
     Class for providing various assets data
 
     **Required attributes**::
 
-        # Predefined:
+        # Predefined
 
         _PATH = pyquoks.utils.get_path("assets/")
 
@@ -24,7 +24,7 @@ class AssetsProvider(pyquoks.utils._HasRequiredAttributes):
         "_PATH",
     }
 
-    _PATH: str = pyquoks.utils.get_path("assets/")
+    _PATH: str = utils.get_path("assets/")
 
     def __init__(self) -> None:
         self._check_attributes()
@@ -34,36 +34,30 @@ class AssetsProvider(pyquoks.utils._HasRequiredAttributes):
                 setattr(self, attribute, object_type(self))
 
 
-class Directory(pyquoks.utils._HasRequiredAttributes):
+class Directory(utils._HasRequiredAttributes):
     """
     Class that represents a directory with various assets
 
     **Required attributes**::
 
-        _ATTRIBUTES = {"picture1", "picture2"}
-
         _PATH = "images/"
 
-        _FILENAME = "{0}.png"
+        _FILENAMES = {"picture1.png", "picture2.jpg"}
 
     Attributes:
-        _ATTRIBUTES: Names of files in the directory
         _PATH: Path to the directory with assets files
-        _FILENAME: Filename of assets files
+        _FILENAMES: Filenames of files in the directory
         _parent: Parent object
     """
 
     _REQUIRED_ATTRIBUTES = {
-        "_ATTRIBUTES",
         "_PATH",
-        "_FILENAME",
+        "_FILENAMES",
     }
-
-    _ATTRIBUTES: set[str]
 
     _PATH: str
 
-    _FILENAME: str
+    _FILENAMES: set[str]
 
     _parent: AssetsProvider
 
@@ -74,10 +68,10 @@ class Directory(pyquoks.utils._HasRequiredAttributes):
 
         self._PATH = self._parent._PATH + self._PATH
 
-        for attribute in self._ATTRIBUTES:
+        for attribute in self._FILENAMES:
             try:
-                setattr(self, attribute, self.file_image(
-                    path=self._PATH + self._FILENAME.format(attribute),
+                setattr(self, ".".join(attribute.split(".")[:-1]), self.file_image(
+                    path=self._PATH + attribute,
                 ))
             except Exception:
                 setattr(self, attribute, None)
@@ -95,7 +89,7 @@ class Directory(pyquoks.utils._HasRequiredAttributes):
             )
 
 
-class Network(pyquoks.utils._HasRequiredAttributes):
+class Network(utils._HasRequiredAttributes):
     """
     Class that represents a set of images obtained from a network
 
