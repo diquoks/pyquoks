@@ -8,13 +8,15 @@ import textwrap
 import psutil
 
 
-def format_multiline_string(string: str) -> str:
+def format_multiline_string(string: str, *args, **kwargs) -> str:
     """
     :param string: Multiline string to format
+    :param args: Arguments for formatting
+    :param kwargs: Keyword arguments for formatting
     :return: Formatted multiline string
     """
 
-    return textwrap.dedent(string).strip()
+    return textwrap.dedent(string).strip().format(*args, **kwargs)
 
 
 def check_connection() -> bool:
