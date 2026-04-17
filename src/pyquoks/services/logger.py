@@ -43,6 +43,7 @@ class LoggerService(logging.Logger):
             )
             self._LOG_PATH = path + f"{int(datetime.datetime.now().timestamp())}.{filename}.log"
 
+            # noinspection PyTypeChecker
             self.file_handler = logging.FileHandler(
                 filename=self._LOG_PATH,
                 encoding="utf-8",
