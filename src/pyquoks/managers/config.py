@@ -126,10 +126,8 @@ class Config(utils._HasRequiredAttributes):
 
             object_type = self.__class__.__annotations__.get(attribute)
 
-            if not isinstance(
-                    value,
-                    typing.get_origin(object_type) if typing.get_origin(object_type) else object_type,
-            ):
+            # noinspection PyTypeChecker
+            if not isinstance(value, typing.get_origin(object_type) or object_type):
                 raise AttributeError(
                     f"{attribute} has incorrect type! (must be {object_type.__name__})",
                 )
