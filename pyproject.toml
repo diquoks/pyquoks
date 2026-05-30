@@ -7,7 +7,7 @@ dependencies = [
     "pydantic (>=2.13.4,<3.0.0)",
     "requests (>=2.34.2,<3.0.0)"
 ]
-requires-python = "^3.14"
+requires-python = ">=3.14.0,<4.0.0"
 authors = [
     { name = "Denis Titovets", email = "den232titovets@yandex.ru>" }
 ]
