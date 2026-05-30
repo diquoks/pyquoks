@@ -1,8 +1,6 @@
 import PIL.Image
 
-# noinspection PyUnusedImports
 import pyquoks.providers.assets
-import pyquoks.utils
 
 
 class AssetsProvider(pyquoks.providers.assets.AssetsProvider):

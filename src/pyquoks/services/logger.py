@@ -75,7 +75,7 @@ class LoggerService(logging.Logger):
         Logs an exception with detailed traceback
 
         :param exception: Exception to be logged
-        :param raise_again: Whether or not exception should be raised again
+        :param raise_again: Whether exception should be raised again
         """
 
         self.error(

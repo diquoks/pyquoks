@@ -38,7 +38,7 @@ def check_connection() -> bool:
 def get_path(relative_path: str, use_meipass: bool = False) -> str:
     """
     :param relative_path: Relative path of the file
-    :param use_meipass: Whether or not ``sys._MEIPASS`` should be used
+    :param use_meipass: Whether ``sys._MEIPASS`` should be used
     :return: Absolute path for provided relative path
     """
 
@@ -50,7 +50,7 @@ def get_path(relative_path: str, use_meipass: bool = False) -> str:
     return os.path.join(base_path, relative_path)
 
 
-def get_process_created_datetime(pid: int = None) -> datetime.datetime:
+def get_process_created_datetime(pid: int | None = None) -> datetime.datetime:
     """
     :param pid: ID of the process
     :return: Datetime when the process was created

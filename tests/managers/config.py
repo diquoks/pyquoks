@@ -1,6 +1,4 @@
-# noinspection PyUnusedImports
 import pyquoks.managers.config
-import pyquoks.utils
 
 
 class ConfigManager(pyquoks.managers.config.ConfigManager):
