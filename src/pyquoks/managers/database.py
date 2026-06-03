@@ -33,8 +33,10 @@ class DatabaseManager(utils._HasRequiredAttributes):
         )
 
         for attribute, object_type in self.__class__.__annotations__.items():
-            if issubclass(object_type, Database):
-                setattr(self, attribute, object_type(self))
+            if not issubclass(object_type, Database):
+                continue
+
+            setattr(self, attribute, object_type(self))
 
     def close_all(self) -> None:
         """
@@ -42,8 +44,10 @@ class DatabaseManager(utils._HasRequiredAttributes):
         """
 
         for attribute, object_type in self.__class__.__annotations__.items():
-            if issubclass(object_type, Database):
-                getattr(self, attribute).close()
+            if not issubclass(object_type, Database):
+                continue
+
+            getattr(self, attribute).close()
 
 
 class Database(sqlite3.Connection, utils._HasRequiredAttributes):
