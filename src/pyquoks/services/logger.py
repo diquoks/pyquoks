@@ -36,28 +36,28 @@ class LoggerService(logging.Logger):
         )
         self.addHandler(self.stream_handler)
 
-        if file_handling:
-            os.makedirs(
-                name=path,
-                exist_ok=True
-            )
-            self._LOG_PATH = path + f"{int(datetime.datetime.now().timestamp())}.{filename}.log"
-
-            # noinspection PyTypeChecker
-            self.file_handler = logging.FileHandler(
-                filename=self._LOG_PATH,
-                encoding="utf-8",
-            )
-            self.file_handler.setFormatter(
-                logging.Formatter(
-                    fmt="$levelname $asctime - $message",
-                    datefmt="%d-%m-%y %H:%M:%S",
-                    style="$",
-                ),
-            )
-            self.addHandler(self.file_handler)
-        else:
+        if not file_handling:
             self._LOG_PATH = None
+            return
+
+        os.makedirs(
+            name=path,
+            exist_ok=True
+        )
+        self._LOG_PATH: str = path + f"{int(datetime.datetime.now().timestamp())}.{filename}.log"
+
+        self.file_handler = logging.FileHandler(
+            filename=self._LOG_PATH,
+            encoding="utf-8",
+        )
+        self.file_handler.setFormatter(
+            logging.Formatter(
+                fmt="$levelname $asctime - $message",
+                datefmt="%d-%m-%y %H:%M:%S",
+                style="$",
+            ),
+        )
+        self.addHandler(self.file_handler)
 
     @property
     def file(self) -> typing.IO | None:
@@ -67,8 +67,8 @@ class LoggerService(logging.Logger):
 
         if self._LOG_PATH:
             return open(self._LOG_PATH, "rb")
-        else:
-            return None
+
+        return None
 
     def log_exception(self, exception: Exception, raise_again: bool = False) -> None:
         """

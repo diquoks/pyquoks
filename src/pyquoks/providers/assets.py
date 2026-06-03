@@ -30,8 +30,10 @@ class AssetsProvider(utils._HasRequiredAttributes):
         self._check_attributes()
 
         for attribute, object_type in self.__class__.__annotations__.items():
-            if issubclass(object_type, Directory | Network):
-                setattr(self, attribute, object_type(self))
+            if not issubclass(object_type, Directory | Network):
+                continue
+
+            setattr(self, attribute, object_type(self))
 
 
 class Directory(utils._HasRequiredAttributes):

@@ -29,8 +29,10 @@ class ConfigManager(utils._HasRequiredAttributes):
         self._check_attributes()
 
         for attribute, object_type in self.__class__.__annotations__.items():
-            if issubclass(object_type, Config):
-                setattr(self, attribute, object_type(self))
+            if not issubclass(object_type, Config):
+                continue
+
+            setattr(self, attribute, object_type(self))
 
 
 class Config(utils._HasRequiredAttributes):
@@ -84,8 +86,8 @@ class Config(utils._HasRequiredAttributes):
                         if getattr(self, attribute) not in [str(True), str(False)]:
                             setattr(self, attribute, None)
                             raise self._incorrect_content_exception
-                        else:
-                            setattr(self, attribute, getattr(self, attribute) == str(True))
+
+                        setattr(self, attribute, getattr(self, attribute) == str(True))
                     case int():
                         setattr(self, attribute, int(getattr(self, attribute)))
                     case float():
@@ -134,13 +136,16 @@ class Config(utils._HasRequiredAttributes):
 
             setattr(self, attribute, value)
 
-            match object_type():
-                case bool() | int() | float() | str():
-                    self._config.set(self._SECTION, attribute, str(value))
-                case dict() | list():
-                    self._config.set(self._SECTION, attribute, json.dumps(value))
-                case _:
-                    raise ValueError(f"{object_type.__name__} type is not supported!")
+            try:
+                match object_type():
+                    case bool() | int() | float() | str():
+                        self._config.set(self._SECTION, attribute, str(value))
+                    case dict() | list():
+                        self._config.set(self._SECTION, attribute, json.dumps(value))
+                    case _:
+                        raise ValueError()
+            except:
+                raise ValueError(f"{object_type.__name__} type is not supported!")
 
             with open(self._parent._PATH, "w", encoding="utf-8") as file:
                 self._config.write(file)

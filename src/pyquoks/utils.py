@@ -56,10 +56,7 @@ def get_process_created_datetime(pid: int | None = None) -> datetime.datetime:
     :return: Datetime when the process was created
     """
 
-    if pid is None:
-        pid = os.getpid()
-
-    process = psutil.Process(pid)
+    process = psutil.Process(pid or os.getpid())
 
     return datetime.datetime.fromtimestamp(
         timestamp=process.create_time(),
@@ -81,7 +78,11 @@ class _HasRequiredAttributes:
     _REQUIRED_ATTRIBUTES: set[str]
 
     def _check_attributes(self) -> None:
-        if hasattr(self, "_REQUIRED_ATTRIBUTES"):
-            for attribute in self._REQUIRED_ATTRIBUTES:
-                if not hasattr(self, attribute):
-                    raise AttributeError(f"The required class attribute is not set! ({attribute})")
+        if not hasattr(self, "_REQUIRED_ATTRIBUTES"):
+            return
+
+        for attribute in self._REQUIRED_ATTRIBUTES:
+            if hasattr(self, attribute):
+                continue
+
+            raise AttributeError(f"The required class attribute is not set! ({attribute})")
