@@ -13,12 +13,13 @@ class TestDatabase(pyquoks.managers.database.Database):
     _NAME = "test"
 
     _SQL = pyquoks.utils.format_multiline_string(
-        f"""
-            CREATE TABLE IF NOT EXISTS {_NAME} (
-            id INTEGER PRIMARY KEY NOT NULL,
-            test_data TEXT NOT NULL
-            )
+        """
+        CREATE TABLE IF NOT EXISTS {0} (
+        id INTEGER PRIMARY KEY NOT NULL,
+        test_data TEXT NOT NULL
+        )
         """,
+        _NAME,
     )
 
     def add_test_data(self, test_data: str) -> models.TestDataModel:
@@ -26,12 +27,13 @@ class TestDatabase(pyquoks.managers.database.Database):
 
         cursor.execute(
             pyquoks.utils.format_multiline_string(
-                f"""
-                    INSERT INTO {self._NAME} (
-                    test_data
-                    )
-                    VALUES (?)
+                """
+                INSERT INTO {0} (
+                test_data
+                )
+                VALUES (?)
                 """,
+                self._NAME,
             ),
             (
                 test_data,
@@ -42,9 +44,10 @@ class TestDatabase(pyquoks.managers.database.Database):
 
         cursor.execute(
             pyquoks.utils.format_multiline_string(
-                f"""
-                    SELECT * FROM {self._NAME} WHERE rowid == ?
+                """
+                SELECT * FROM {0} WHERE rowid == ?
                 """,
+                self._NAME,
             ),
             (
                 cursor.lastrowid,
@@ -59,9 +62,10 @@ class TestDatabase(pyquoks.managers.database.Database):
 
         cursor.execute(
             pyquoks.utils.format_multiline_string(
-                f"""
-                    SELECT * FROM {self._NAME} WHERE id == ?
+                """
+                SELECT * FROM {0} WHERE id == ?
                 """,
+                self._NAME,
             ),
             (
                 test_data_id,
