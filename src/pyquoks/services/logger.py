@@ -65,7 +65,7 @@ class LoggerService(logging.Logger):
         :return: Opened file-like object of current logs
         """
 
-        if self._LOG_PATH:
+        if self._LOG_PATH is not None:
             return open(self._LOG_PATH, "rb")
 
         return None
