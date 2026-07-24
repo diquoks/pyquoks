@@ -42,10 +42,12 @@ def get_path(relative_path: str, use_meipass: bool = False) -> str:
     :return: Absolute path for provided relative path
     """
 
-    if use_meipass and hasattr(sys, "_MEIPASS"):
+    if not use_meipass:
+        base_path = os.path.abspath(".")
+    elif use_meipass and hasattr(sys, "_MEIPASS"):
         base_path = sys._MEIPASS
     else:
-        base_path = os.path.abspath(".")
+        raise AttributeError(f"sys._MEIPASS is not specified!")
 
     return os.path.join(base_path, relative_path)
 

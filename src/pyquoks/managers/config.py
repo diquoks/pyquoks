@@ -54,10 +54,6 @@ class Config(utils._HasRequiredAttributes):
 
     _SECTION: str
 
-    _incorrect_content_exception = configparser.ParsingError(
-        source="configuration file is filled incorrectly",
-    )
-
     _parent: ConfigManager
 
     def __init__(self, parent: ConfigManager) -> None:
@@ -85,7 +81,7 @@ class Config(utils._HasRequiredAttributes):
                     case bool():
                         if getattr(self, attribute) not in [str(True), str(False)]:
                             setattr(self, attribute, None)
-                            raise self._incorrect_content_exception
+                            raise configparser.ParsingError("configuration file is filled incorrectly!")
 
                         setattr(self, attribute, getattr(self, attribute) == str(True))
                     case int():
@@ -101,7 +97,7 @@ class Config(utils._HasRequiredAttributes):
             except Exception:
                 setattr(self, attribute, None)
 
-                raise self._incorrect_content_exception
+                raise configparser.ParsingError("configuration file is filled incorrectly!")
 
     @property
     def _values(self) -> dict | None:
@@ -122,7 +118,6 @@ class Config(utils._HasRequiredAttributes):
         """
 
         for attribute, value in kwargs.items():
-
             if attribute not in self.__class__.__annotations__.keys():
                 raise AttributeError(f"{attribute} is not specified!")
 
@@ -130,13 +125,12 @@ class Config(utils._HasRequiredAttributes):
 
             # noinspection PyTypeChecker
             if not isinstance(value, typing.get_origin(object_type) or object_type):
-                raise AttributeError(
-                    f"{attribute} has incorrect type! (must be {object_type.__name__})",
-                )
+                raise AttributeError(f"{attribute} has incorrect type! (must be {object_type.__name__})")
 
             setattr(self, attribute, value)
 
             try:
+                # noinspection calling-non-callable
                 match object_type():
                     case bool() | int() | float() | str():
                         self._config.set(self._SECTION, attribute, str(value))

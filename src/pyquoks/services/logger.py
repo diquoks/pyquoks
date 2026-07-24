@@ -28,11 +28,11 @@ class LoggerService(logging.Logger):
 
         self.stream_handler = logging.StreamHandler(sys.stdout)
         self.stream_handler.setFormatter(
-            logging.Formatter(
+            fmt=logging.Formatter(
                 fmt="$levelname $asctime $name - $message",
                 datefmt="%d-%m-%y %H:%M:%S",
                 style="$",
-            )
+            ),
         )
         self.addHandler(self.stream_handler)
 
@@ -42,7 +42,7 @@ class LoggerService(logging.Logger):
 
         os.makedirs(
             name=path,
-            exist_ok=True
+            exist_ok=True,
         )
         self._LOG_PATH: str = path + f"{int(datetime.datetime.now().timestamp())}.{filename}.log"
 

@@ -100,8 +100,6 @@ class Database(sqlite3.Connection, utils._HasRequiredAttributes):
 
         cursor = self.cursor()
 
-        cursor.execute(
-            self._SQL,
-        )
+        cursor.execute(self._SQL)
 
         self.commit()
