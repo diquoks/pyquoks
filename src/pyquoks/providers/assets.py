@@ -47,7 +47,7 @@ class Directory(utils._HasRequiredAttributes):
         _FILENAMES = {"picture1.png", "picture2.jpg"}
 
     Attributes:
-        _PATH: Path to the directory with assets files
+        _PATH: Relative path to the directory with assets files
         _FILENAMES: Filenames of files in the directory
         _parent: Parent object
     """
@@ -68,12 +68,10 @@ class Directory(utils._HasRequiredAttributes):
 
         self._parent = parent
 
-        self._PATH = self._parent._PATH + self._PATH
-
         for attribute in self._FILENAMES:
             try:
                 setattr(self, ".".join(attribute.split(".")[:-1]), self.file_image(
-                    path=self._PATH + attribute,
+                    path=self._parent._PATH + self._PATH + attribute,
                 ))
             except Exception:
                 setattr(self, attribute, None)
