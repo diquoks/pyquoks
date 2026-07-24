@@ -1,8 +1,8 @@
 [project]
 name = "pyquoks"
-version = "2.7.2"
+version = "2.7.3"
 dependencies = [
-    "pillow (>=12.2.0,<13.0.0)",
+    "pillow (>=12.3.0,<13.0.0)",
     "psutil (>=7.2.2,<8.0.0)",
     "pydantic (>=2.13.4,<3.0.0)",
     "requests (>=2.34.2,<3.0.0)",
@@ -19,7 +19,7 @@ license-files = ["LICENSE"]
 [dependency-groups]
 dev = [
     "poetry (>=2.4.1,<3.0.0)",
-    "pytest (>=9.0.3,<10.0.0)",
+    "pytest (>=9.1.1,<10.0.0)",
     "twine (>=6.2.0,<7.0.0)",
 ]
 
