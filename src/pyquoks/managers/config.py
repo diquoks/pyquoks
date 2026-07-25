@@ -100,15 +100,13 @@ class Config(utils._HasRequiredAttributes):
                 raise configparser.ParsingError("configuration file is filled incorrectly!")
 
     @property
-    def _values(self) -> dict | None:
+    def values(self) -> dict | None:
         """
         :return: Values stored in this section
         """
 
         try:
-            return {
-                attribute: getattr(self, attribute) for attribute in self.__class__.__annotations__.keys()
-            }
+            return {attribute: getattr(self, attribute) for attribute in self.__class__.__annotations__.keys()}
         except Exception:
             return None
 
