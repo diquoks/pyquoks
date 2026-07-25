@@ -1,8 +1,8 @@
 import datetime
+import io
 import logging
 import os
 import sys
-import typing
 
 from .. import utils
 
@@ -10,65 +10,58 @@ from .. import utils
 class LoggerService(logging.Logger):
     """
     Class that provides methods for parallel logging
-
-    Attributes:
-        _LOG_PATH: Path to the logs file
     """
-
-    _LOG_PATH: str | None
 
     def __init__(
             self,
-            filename: str,
+            name: str,
             level: int = logging.NOTSET,
             file_handling: bool = True,
             path: str = utils.get_path("logs/"),
     ) -> None:
-        super().__init__(filename, level)
+        super().__init__(name, level)
 
-        self.stream_handler = logging.StreamHandler(sys.stdout)
-        self.stream_handler.setFormatter(
-            fmt=logging.Formatter(
-                fmt="$levelname $asctime $name - $message",
+        self.filename = f"{int(datetime.datetime.now().timestamp())}.{name}.log"
+        self.encoding = "utf-8"
+
+        def new_formatter(fmt: str) -> logging.Formatter:
+            return logging.Formatter(
+                fmt=fmt,
                 datefmt="%d-%m-%y %H:%M:%S",
                 style="$",
-            ),
-        )
-        self.addHandler(self.stream_handler)
+            )
+
+        self._stdout_handler = logging.StreamHandler(sys.stdout)
+        self._stdout_handler.setFormatter(new_formatter("$levelname $asctime $name - $message"))
+        self.addHandler(self._stdout_handler)
+
+        self._stream_handler = logging.StreamHandler(io.StringIO())
+        self._stream_handler.setFormatter(new_formatter("$levelname $asctime - $message"))
+        self.addHandler(self._stream_handler)
 
         if not file_handling:
-            self._LOG_PATH = None
+            self._file_handler = None
             return
 
         os.makedirs(
             name=path,
             exist_ok=True,
         )
-        self._LOG_PATH: str = path + f"{int(datetime.datetime.now().timestamp())}.{filename}.log"
 
-        self.file_handler = logging.FileHandler(
-            filename=self._LOG_PATH,
-            encoding="utf-8",
+        self._file_handler = logging.FileHandler(
+            filename=os.path.join(path, self.filename),
+            encoding=self.encoding,
         )
-        self.file_handler.setFormatter(
-            logging.Formatter(
-                fmt="$levelname $asctime - $message",
-                datefmt="%d-%m-%y %H:%M:%S",
-                style="$",
-            ),
-        )
-        self.addHandler(self.file_handler)
+        self._file_handler.setFormatter(new_formatter("$levelname $asctime - $message"))
+        self.addHandler(self._file_handler)
 
     @property
-    def file(self) -> typing.IO | None:
+    def stream(self) -> io.StringIO:
         """
-        :return: Opened file-like object of current logs
+        :return: Stream-like object of current logs
         """
 
-        if self._LOG_PATH is not None:
-            return open(self._LOG_PATH, "rb")
-
-        return None
+        return self._stream_handler.stream
 
     def log_exception(self, exception: Exception, raise_again: bool = False) -> None:
         """

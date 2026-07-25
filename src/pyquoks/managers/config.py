@@ -81,7 +81,7 @@ class Config(utils._HasRequiredAttributes):
                     case bool():
                         if getattr(self, attribute) not in [str(True), str(False)]:
                             setattr(self, attribute, None)
-                            raise configparser.ParsingError("configuration file is filled incorrectly!")
+                            raise ValueError()
 
                         setattr(self, attribute, getattr(self, attribute) == str(True))
                     case int():
