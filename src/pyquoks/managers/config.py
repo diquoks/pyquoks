@@ -81,7 +81,7 @@ class Config(utils._HasRequiredAttributes):
                     case bool():
                         if getattr(self, attribute) not in [str(True), str(False)]:
                             setattr(self, attribute, None)
-                            raise configparser.ParsingError("configuration file is filled incorrectly!")
+                            raise ValueError()
 
                         setattr(self, attribute, getattr(self, attribute) == str(True))
                     case int():
@@ -100,15 +100,13 @@ class Config(utils._HasRequiredAttributes):
                 raise configparser.ParsingError("configuration file is filled incorrectly!")
 
     @property
-    def _values(self) -> dict | None:
+    def values(self) -> dict | None:
         """
         :return: Values stored in this section
         """
 
         try:
-            return {
-                attribute: getattr(self, attribute) for attribute in self.__class__.__annotations__.keys()
-            }
+            return {attribute: getattr(self, attribute) for attribute in self.__class__.__annotations__.keys()}
         except Exception:
             return None
 

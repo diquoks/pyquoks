@@ -60,28 +60,20 @@ class Database(sqlite3.Connection, utils._HasRequiredAttributes):
 
         _SQL = f\"""CREATE TABLE IF NOT EXISTS {_NAME} (user_id INTEGER PRIMARY KEY NOT NULL)\"""
 
-        # Predefined
-
-        _FILENAME = "{0}.db"
-
     Attributes:
         _NAME: Name of the database
         _SQL: SQL expression for creating a table
-        _FILENAME: Filename of the database
         _parent: Parent object
     """
 
     _REQUIRED_ATTRIBUTES = {
         "_NAME",
         "_SQL",
-        "_FILENAME",
     }
 
     _NAME: str
 
     _SQL: str
-
-    _FILENAME: str = "{0}.db"
 
     _parent: DatabaseManager
 
@@ -90,10 +82,8 @@ class Database(sqlite3.Connection, utils._HasRequiredAttributes):
 
         self._parent = parent
 
-        self._FILENAME = self._FILENAME.format(self._NAME)
-
         super().__init__(
-            database=self._parent._PATH + self._FILENAME,
+            database=os.path.join(self._parent._PATH, f"{self._NAME}.db"),
             check_same_thread=False,
         )
         self.row_factory = sqlite3.Row

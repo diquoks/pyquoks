@@ -1,4 +1,5 @@
 import io
+import os
 
 import PIL.Image
 import requests
@@ -70,8 +71,8 @@ class Directory(utils._HasRequiredAttributes):
 
         for attribute in self._FILENAMES:
             try:
-                setattr(self, ".".join(attribute.split(".")[:-1]), self.file_image(
-                    path=self._parent._PATH + self._PATH + attribute,
+                setattr(self, os.path.splitext(attribute)[0], self.file_image(
+                    path=os.path.join(self._parent._PATH, self._PATH, attribute),
                 ))
             except Exception:
                 setattr(self, attribute, None)
